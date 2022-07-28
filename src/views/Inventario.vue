@@ -1,7 +1,7 @@
 <template>
     <v-container fluid style="height: 100%;">
-        <v-data-table :headers="headers" :items="items" :search="search" :page.sync="page" :items-per-page="15"
-            hide-default-footer class="elevation-10" item-key="name" no-data-text="No hay información"
+        <v-data-table :headers="headers" :items="photos" :search="search" :page.sync="page" :items-per-page="itemsPerPage"
+            hide-default-footer class="elevation-10" item-key="name" no-data-text="No hay información" :loading="loadingVar" loading-text="Cargando información..."
             no-results-text="No hay coincidencias" @page-count="pageCount = $event" sort-by="name">
             <template v-slot:top>
                 <div v-if="!isMobile()">
@@ -44,7 +44,7 @@
                 </v-btn>
             </template>
         </v-data-table>
-        <v-pagination :length="pageCount" v-model="page" class="mt-2"></v-pagination>
+        <v-pagination :length="pageCount" :total-visible="10" v-model="page" class="mt-2"></v-pagination>
 
         <v-dialog v-model="dialogNewProduct" scrollable persistent :overlay=false max-width="60%"
             transition="dialog-transition">
@@ -58,7 +58,7 @@
                     </div>
                 </v-card-title>
                 <v-card-actions>
-                    <v-btn text color="primary">text</v-btn>
+                    <v-btn color="red" dark @click="dialogNewProduct = false">Cancelar</v-btn>
                     <v-btn text color="primary">text</v-btn>
                 </v-card-actions>
             </v-card>
@@ -72,6 +72,8 @@ export default {
     name: "Inventario",
     data() {
         return {
+            loadingVar: true,
+            itemsPerPage: 12,
             dialogNewProduct: false,
             search: "",
             page: 1,
@@ -80,14 +82,16 @@ export default {
                 {
                     text: 'PRODUCTO',
                     align: 'start',
-                    value: 'name'
+                    value: 'albumId'
                 },
-                { text: 'CATEGORÍA', value: 'category' },
-                { text: 'MARCA', value: 'brand' },
-                { text: 'PRECIO', value: 'price', sortable: false },
-                { text: 'UNIDAD', value: 'units', sortable: false },
+                { text: 'CATEGORÍA', value: 'id' },
+                { text: 'MARCA', value: 'title' },
+                { text: 'PRECIO', value: 'url', sortable: false },
+                { text: 'UNIDAD', value: 'thumbnailUrl', sortable: false },
                 { text: 'ACCIONES', value: 'actions', sortable: false, },
             ],
+
+            photos:[],
 
             items: [
                 {
@@ -109,10 +113,24 @@ export default {
     },
 
     methods: {
+        async getPhotos(){
+            const response = await this.axios.get('https://jsonplaceholder.typicode.com/photos')
+            this.photos = response.data
+            this.loadingVar = false
+        },
+
         isMobile() {
-            return (window.innerWidth <= 600 && window.innerHeight <= 1000)
+            const val = (window.innerWidth <= 600 && window.innerHeight <= 1000)
+            if(val){
+                this.itemsPerPage = 5
+            }
+            return val
         }
-    }
+    },
+
+    created() {
+        this.getPhotos()
+    },
 
 }
 

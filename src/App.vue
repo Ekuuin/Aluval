@@ -48,11 +48,11 @@
     </v-app-bar>
 
     <v-navigation-drawer hide-overlay v-model="drawer" absolute temporary dark color="primary">
-    <br>
+      <br>
       <v-row>
         <v-col class="d-flex justify-center">
           <v-img alt="ALUVAL Logo2" class="shrink" contain width="160" src="@/assets/logoV.png"
-          transition="scale-transition" />
+            transition="scale-transition" />
         </v-col>
       </v-row>
       <br>
@@ -138,11 +138,11 @@ export default {
 }
 
 .v-data-table>.v-data-table__wrapper>table>thead>tr>th {
-  font-size: 20px;
+  font-size: 20px !important;
 }
 
 .v-data-table>.v-data-table__wrapper>table>tbody>tr>td {
-  font-size: 18px;
+  font-size: 16px !important;
 }
 
 .v-toolbar__title {

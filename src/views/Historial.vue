@@ -1,7 +1,7 @@
 <template>
     <v-container grid-list-xs fluid style="height: 100%;">
-        <v-data-table :headers="headers" :items="desserts" :search="search" :page.sync="page" no-results-text="No hay coincidencias" no-data-text="No hay información"
-            :items-per-page="itemsPerPage" :expanded.sync="expanded" single-expand item-key="name" show-expand
+        <v-data-table :headers="headers" :items="photos" :search="search" :page.sync="page" no-results-text="No hay coincidencias" no-data-text="No hay información"
+            :items-per-page="itemsPerPage" :expanded.sync="expanded" single-expand item-key="title" show-expand :loading="loadingVar" loading-text="Cargando información..."
             hide-default-footer class="elevation-10" @page-count="pageCount = $event">
             <template v-slot:top>
                 <div v-if="!isMobile()">
@@ -37,11 +37,11 @@
             </template>
             <template v-slot:expanded-item="{ headers, item }">
                 <td :colspan="headers.length">
-                    More info about {{ item.name }}
+                    More info about {{ item.title }}
                 </td>
             </template>
         </v-data-table>
-        <v-pagination :length="pageCount" v-model="page" class="mt-2"></v-pagination>
+        <v-pagination :length="pageCount" v-model="page" :total-visible="10" class="mt-2"></v-pagination>
     </v-container>
 </template>
 
@@ -50,6 +50,7 @@ export default {
     name: 'Historial',
     data() {
         return {
+            loadingVar: true,
             itemsPerPage: 10,
             search: '',
             page: 1,
@@ -60,11 +61,11 @@ export default {
                     text: 'CLIENTE',
                     align: 'start',
                     sortable: false,
-                    value: 'name',
+                    value: 'title',
                 },
-                { text: 'DOMICILIO', value: 'address' },
-                { text: 'FECHA', value: 'date' },
-                { text: 'IMPORTE', value: 'cost' },
+                { text: 'DOMICILIO', value: 'url' },
+                { text: 'FECHA', value: 'id' },
+                { text: 'IMPORTE', value: 'albumId' },
                 { text: '', value: 'data-table-expand' },
             ],
             desserts: [
@@ -80,23 +81,28 @@ export default {
                     date: "10/04/2022",
                     cost: 4500,
                 },
-            ]
+            ],
+
+            photos: []
         }
     },
     methods: {
-        isMobile() {
-            return ((window.innerWidth <= 600) && (window.innerHeight <= 1000))
+        async getPhotos(){
+            const response = await this.axios.get('https://jsonplaceholder.typicode.com/photos')
+            this.photos = response.data
+            this.loadingVar = false
         },
 
-        itemsTable() {
-            if (this.isMobile()) {
-                this.itemsPerPage = 1;
+        isMobile() {
+            const val = window.innerWidth <= 600 && window.innerHeight <= 1000
+            if(val){
+                this.itemsPerPage = 2
             }
-        }
-
+            return val
+        },
     },
     created() {
-        this.itemsTable();
+        this.getPhotos()
     },
 
 }
