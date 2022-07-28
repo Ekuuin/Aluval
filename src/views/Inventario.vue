@@ -1,7 +1,8 @@
 <template>
     <v-container fluid style="height: 100%;">
-        <v-data-table :headers="headers" :items="photos" :search="search" :page.sync="page" :items-per-page="itemsPerPage"
-            hide-default-footer class="elevation-10" item-key="name" no-data-text="No hay información" :loading="loadingVar" loading-text="Cargando información..."
+        <v-data-table :headers="headers" :items="photos" :search="search" :page.sync="page"
+            :items-per-page="itemsPerPage" hide-default-footer class="elevation-10" item-key="name"
+            no-data-text="No hay información" :loading="loadingVar" loading-text="Cargando información..."
             no-results-text="No hay coincidencias" @page-count="pageCount = $event" sort-by="name">
             <template v-slot:top>
                 <div v-if="!isMobile()">
@@ -44,19 +45,19 @@
                 </v-btn>
             </template>
         </v-data-table>
-        <v-pagination :length="pageCount" :total-visible="10" v-model="page" class="mt-2"></v-pagination>
+        <v-pagination :length="pageCount" :total-visible="totalVisible" v-model="page" class="mt-2"></v-pagination>
 
         <v-dialog v-model="dialogNewProduct" scrollable persistent :overlay=false max-width="60%"
             transition="dialog-transition">
             <v-card height="60vh">
-                <v-card-media src="src" height="100px">
-                </v-card-media>
-                <v-card-title primary-title>
-                    <div>
-                        <h3 class="headline mb-0">headline</h3>
-                        <div>description</div>
-                    </div>
-                </v-card-title>
+                <v-toolbar flat color="primary" dark>
+                    <v-card-title class="overline" style="font-size: large !important">
+                        AÑADIR PRODUCTOS
+                    </v-card-title>
+                </v-toolbar>
+                <v-card-text style="height: 100%;">
+
+                </v-card-text>
                 <v-card-actions>
                     <v-btn color="red" dark @click="dialogNewProduct = false">Cancelar</v-btn>
                     <v-btn text color="primary">text</v-btn>
@@ -72,6 +73,7 @@ export default {
     name: "Inventario",
     data() {
         return {
+            totalVisible: 10,
             loadingVar: true,
             itemsPerPage: 12,
             dialogNewProduct: false,
@@ -91,7 +93,7 @@ export default {
                 { text: 'ACCIONES', value: 'actions', sortable: false, },
             ],
 
-            photos:[],
+            photos: [],
 
             items: [
                 {
@@ -113,7 +115,7 @@ export default {
     },
 
     methods: {
-        async getPhotos(){
+        async getPhotos() {
             const response = await this.axios.get('https://jsonplaceholder.typicode.com/photos')
             this.photos = response.data
             this.loadingVar = false
@@ -121,8 +123,9 @@ export default {
 
         isMobile() {
             const val = (window.innerWidth <= 600 && window.innerHeight <= 1000)
-            if(val){
+            if (val) {
                 this.itemsPerPage = 5
+                this.totalVisible = 5
             }
             return val
         }

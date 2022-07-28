@@ -146,8 +146,27 @@ export default {
 }
 
 .v-toolbar__title {
-  font-size: 25px;
+  font-size: 1.5rem !important;
+  font-weight: 500;
+  letter-spacing: 0.17em;
+  text-transform: uppercase;
+  font-family: 'Roboto', sans-serif;
+
 }
+
+.v-toolbar__title.mobile{
+  font-size: 1.2em !important;
+  font-weight: 500;
+  letter-spacing: 0.17em;
+  text-transform: uppercase;
+  font-family: 'Roboto', sans-serif;
+}
+
+.v-data-table>.v-data-table__wrapper>table>tbody>tr>td>.v-data-table__mobile-row__cell{
+  word-break: break-all;
+  width: 50%;
+}
+
 </style>
 
 <style lang="scss" scoped>

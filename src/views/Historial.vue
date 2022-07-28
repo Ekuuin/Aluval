@@ -7,7 +7,7 @@
                 <div v-if="!isMobile()">
                     <v-toolbar flat color="primary" dark>
                         <v-row justify="space-between">
-                            <v-col cols="auto">
+                            <v-col cols="auto" class="d-flex align-center">
                                 <v-toolbar-title>
                                     HISTORIAL DE PROYECTOS
                                 </v-toolbar-title>
@@ -22,12 +22,12 @@
                 <div v-else>
                     <v-toolbar flat height="150px" color="primary" dark>
                         <v-row justify="space-between">
-                            <v-col cols="auto">
-                                <v-toolbar-title>
+                            <v-col cols="12" class="d-flex justify-center">
+                                <v-toolbar-title class="mobile">
                                     HISTORIAL DE PROYECTOS
                                 </v-toolbar-title>
                             </v-col>
-                            <v-col cols="auto">
+                            <v-col cols="12">
                                 <v-text-field v-model="search" append-icon="mdi-magnify" label="Buscar" single-line
                                     hide-details class="shrink" rounded filled dense></v-text-field>
                             </v-col>
@@ -41,7 +41,7 @@
                 </td>
             </template>
         </v-data-table>
-        <v-pagination :length="pageCount" v-model="page" :total-visible="10" class="mt-2"></v-pagination>
+        <v-pagination :length="pageCount" v-model="page" :total-visible="totalVisible" class="mt-2"></v-pagination>
     </v-container>
 </template>
 
@@ -50,6 +50,7 @@ export default {
     name: 'Historial',
     data() {
         return {
+            totalVisible: 10,
             loadingVar: true,
             itemsPerPage: 10,
             search: '',
@@ -63,7 +64,7 @@ export default {
                     sortable: false,
                     value: 'title',
                 },
-                { text: 'DOMICILIO', value: 'url' },
+                { text: 'DOMICILIO', value: 'url'},
                 { text: 'FECHA', value: 'id' },
                 { text: 'IMPORTE', value: 'albumId' },
                 { text: '', value: 'data-table-expand' },
@@ -97,6 +98,7 @@ export default {
             const val = window.innerWidth <= 600 && window.innerHeight <= 1000
             if(val){
                 this.itemsPerPage = 2
+                this.totalVisible = 5
             }
             return val
         },
