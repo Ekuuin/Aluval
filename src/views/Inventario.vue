@@ -47,7 +47,7 @@
         </v-data-table>
         <v-pagination :length="pageCount" :total-visible="totalVisible" v-model="page" class="mt-2"></v-pagination>
 
-        <v-dialog v-model="dialogNewProduct" scrollable persistent :overlay=false max-width="60%"
+        <v-dialog v-model="dialogNewProduct" scrollable persistent :overlay=false width="auto " 
             transition="dialog-transition">
             <v-card height="60vh">
                 <v-toolbar flat color="primary" dark>
@@ -59,8 +59,10 @@
 
                 </v-card-text>
                 <v-card-actions>
+                    <v-spacer></v-spacer>
                     <v-btn color="red" dark @click="dialogNewProduct = false">Cancelar</v-btn>
-                    <v-btn text color="primary">text</v-btn>
+                    <v-btn color="success">Guardar</v-btn>
+                    <v-spacer></v-spacer>
                 </v-card-actions>
             </v-card>
         </v-dialog>
@@ -124,7 +126,7 @@ export default {
         isMobile() {
             const val = (window.innerWidth <= 600 && window.innerHeight <= 1000)
             if (val) {
-                this.itemsPerPage = 5
+                this.itemsPerPage = 2
                 this.totalVisible = 5
             }
             return val
