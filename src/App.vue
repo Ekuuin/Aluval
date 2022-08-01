@@ -167,6 +167,13 @@ export default {
   width: 50%;
 }
 
+.rowSpacing>.row+.row{
+  margin-top:0px
+}
+
+.v-card__text{
+  padding: 10px !important
+}
 </style>
 
 <style lang="scss" scoped>
