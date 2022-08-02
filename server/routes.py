@@ -1,8 +1,6 @@
 from flask import Flask, jsonify, request, redirect
 from flaskext.mysql import MySQL
 from pymysql.cursors import DictCursor
-from scipy.fft import idst
-
 
 app = Flask(__name__)
 #Importamos DictCursor para mostrar los resultados obtenidos de la query en modo diccionario
@@ -113,3 +111,25 @@ def actualizarProducto():
     cursor.execute(query, data)
     conn.commit()
     return jsonify(f"Product ID {_productId} successfully updated")
+
+#Rutas de Historial
+
+@app.route('/api/historial/obtenerProyectos')
+def obtenerProyectos():
+    query = "SELECT * FROM proyectos"
+    conn = mysql.connect()
+    cursor = conn.cursor()
+    cursor.execute(query)
+    data = cursor.fetchall()
+    return jsonify(data)
+
+@app.route('/api/historial/obtenerDetalles', methods=["POST"])
+def obtenerDetalles():
+    data = request.get_json(silent=True)
+    query = "SELECT * FROM detalles_pedido WHERE dp_proy_id = %s"
+    conn = mysql.connect()
+    cursor = conn.cursor()
+    cursor.execute(query, data['id'])
+    data = cursor.fetchall()
+    return jsonify(data)
+

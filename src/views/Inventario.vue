@@ -15,6 +15,7 @@
                             INVENTARIO
                         </v-toolbar-title>
                         <v-spacer></v-spacer>
+                        <v-btn color="green" class="mr-5" @click="dialogEditCategory = true">Editar categorías</v-btn>
                         <v-btn color="green" class="mr-5" @click="dialogNewProduct = true">Agregar Producto</v-btn>
                         <v-text-field append-icon="mdi-magnify" v-model="search" label="Buscar" class="shrink" dense
                             filled rounded hide-details single-line></v-text-field>
@@ -91,13 +92,44 @@
                     <v-card-actions>
                         <v-spacer></v-spacer>
                         <v-btn color="red" dark @click="closeDialog()">Cancelar</v-btn>
-                        <v-btn color="success" @click="test()">Guardar</v-btn>
+                        <v-btn color="success" @click="editProduct()">Guardar</v-btn>
                         <v-spacer></v-spacer>
                     </v-card-actions>
                 </v-card>
             </v-dialog>
         </div>
 
+        <div v-else>
+            <v-dialog v-model="dialogEditProduct" scrollable persistent fullscreen transition="dialog-transition">
+                <v-card>
+                    <v-toolbar flat color="primary" dark style="flex: none">
+                        <v-card-title class="overline" style="font-size: large !important">
+                            EDITAR PRODUCTO
+                        </v-card-title>
+                    </v-toolbar>
+                    <v-card-text>
+                        <v-container>
+                                    <v-text-field v-model="newProduct.pro_name" label="Nombre" rounded outlined dense>
+                                    </v-text-field>
+                                    <v-combobox v-model="newProduct.cat_name" :items="categories" item-text="cat_name"
+                                        label="Categoría" dense rounded outlined></v-combobox>
+                                    <v-text-field v-model="newProduct.pro_brand" label="Marca" dense rounded outlined>
+                                    </v-text-field>
+                                    <v-text-field v-model.number="newProduct.pro_cost" label="Precio" dense type="float"
+                                        rounded outlined></v-text-field>
+                                    <v-select v-model="newProduct.pro_unit" :items="units" label="Unidad" dense rounded
+                                        outlined></v-select>
+                        </v-container>
+                    </v-card-text>
+                    <v-card-actions>
+                        <v-spacer></v-spacer>
+                        <v-btn color="red" dark @click="closeDialog()">Cancelar</v-btn>
+                        <v-btn color="success" @click="editProduct()">Guardar</v-btn>
+                        <v-spacer></v-spacer>
+                    </v-card-actions>
+                </v-card>
+            </v-dialog>
+        </div>
 
         <div v-if="!isMobile()">
             <v-dialog v-model="dialogNewProduct" scrollable persistent max-width="800" transition="dialog-transition">
@@ -187,18 +219,19 @@ export default {
             loadingVar: true,
             itemsPerPage: 12,
             dialogEditProduct: false,
+            dialogEditCategory: false,
             dialogNewProduct: false,
             search: "",
             page: 1,
             pageCount: 0,
             headers: [
-                { text: 'ID', value: 'pro_id'},
-                { text: 'PRODUCTO', value: 'pro_name'},
+                { text: 'ID', value: 'pro_id' },
+                { text: 'PRODUCTO', value: 'pro_name' },
                 { text: 'CATEGORÍA', value: 'cat_name' },
                 { text: 'MARCA', value: 'pro_brand' },
                 { text: 'PRECIO', value: 'pro_cost', sortable: false },
                 { text: 'UNIDAD', value: 'pro_unit', sortable: false },
-                { text: 'ACCIONES', value: 'actions', sortable: false, align: "center"},
+                { text: 'ACCIONES', value: 'actions', sortable: false, align: "center" },
             ],
 
             products: [],
@@ -276,11 +309,6 @@ export default {
             await this.axios.get('/api/inventario/borrarProducto/' + item.pro_id)
             this.getProducts()
         },
-
-        async editProduct() {
-            await this.axios.post('/api/inventario/actualizarProducto/', this.newProduct)
-        }
-        ,
         closeDialog() {
             this.dialogNewProduct = false
             this.dialogEditProduct = false
@@ -319,18 +347,15 @@ export default {
             this.dialogEditProduct = true
         },
 
-        async test() {
+        async editProduct() {
             /**
              * ! waiting for combobox to update before firing
              */
             await new Promise((r) => setTimeout(r, 100));
 
-            console.log("🚀 ~ file: Inventario.vue ~ line 334 ~ test ~ newProduct", this.newProduct)
 
             const cond1 = this.categories.some(cat => cat.cat_id == this.newProduct.cat_name?.cat_id)
-            console.log("🚀 ~ file: Inventario.vue ~ line 334 ~ test ~ cond1", cond1)
             const cond2 = this.categories.some(cat => cat.cat_name === this.newProduct.cat_name)
-            console.log("🚀 ~ file: Inventario.vue ~ line 335 ~ test ~ cond2", cond2)
 
             if (!(cond1 || cond2)) {
                 const producto = {

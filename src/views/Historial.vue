@@ -1,8 +1,11 @@
 <template>
     <v-container grid-list-xs fluid style="height: 100%;">
-        <v-data-table :headers="headers" :items="photos" :search="search" :page.sync="page" no-results-text="No hay coincidencias" no-data-text="No hay información"
-            :items-per-page="itemsPerPage" :expanded.sync="expanded" single-expand item-key="title" show-expand :loading="loadingVar" loading-text="Cargando información..."
-            hide-default-footer class="elevation-10" @page-count="pageCount = $event">
+        <v-data-table :headers="headers" :items="projects" :search="search" :page.sync="page"
+            no-results-text="No hay coincidencias" no-data-text="No hay información" :items-per-page="itemsPerPage"
+            :expanded.sync="expanded" single-expand item-key="title" show-expand :loading="loadingVar"
+            loading-text="Cargando información..." hide-default-footer class="elevation-10"
+            @page-count="pageCount = $event"
+            @click:row="(item, slot) => { slot.expand(!slot.isExpanded); if(!slot.isExpanded) getDetails(item) }">
             <template v-slot:top>
                 <div v-if="!isMobile()">
                     <v-toolbar flat color="primary" dark>
@@ -35,9 +38,11 @@
                     </v-toolbar>
                 </div>
             </template>
-            <template v-slot:expanded-item="{ headers, item }">
+            <template v-slot:expanded-item="{ headers }">
                 <td :colspan="headers.length">
-                    More info about {{ item.title }}
+                    <div v-for="(detalles, index) in details" :key="index">
+                        <span>{{ index + 1 }}.- {{ detalles.dp_comentarios }}</span><br>
+                    </div>
                 </td>
             </template>
         </v-data-table>
@@ -58,53 +63,48 @@ export default {
             pageCount: 0,
             expanded: [],
             headers: [
-                {
-                    text: 'CLIENTE',
-                    align: 'start',
-                    sortable: false,
-                    value: 'title',
-                },
-                { text: 'DOMICILIO', value: 'url'},
-                { text: 'FECHA', value: 'id' },
-                { text: 'IMPORTE', value: 'albumId' },
+                { text: 'ID', value: 'proy_id' },
+                { text: 'CLIENTE', align: 'start', sortable: false, value: 'proy_cliente', },
+                { text: 'DOMICILIO', value: 'proy_domicilio' },
+                { text: 'FECHA', value: 'proy_fecha' },
+                { text: 'IMPORTE', value: 'proy_total' },
                 { text: '', value: 'data-table-expand' },
             ],
-            desserts: [
-                {
-                    name: 'Panfilo',
-                    address: "Cerezos #17",
-                    date: "11/05/2022",
-                    cost: 2300,
-                },
-                {
-                    name: 'Chuchin la burra',
-                    address: "Marfil #14",
-                    date: "10/04/2022",
-                    cost: 4500,
-                },
-            ],
+            projects: [],
+            details: [],
 
-            photos: []
         }
     },
     methods: {
-        async getPhotos(){
-            const response = await this.axios.get('https://jsonplaceholder.typicode.com/photos')
-            this.photos = response.data
-            this.loadingVar = false
-        },
-
         isMobile() {
             const val = window.innerWidth <= 600 && window.innerHeight <= 1000
-            if(val){
+            if (val) {
                 this.itemsPerPage = 2
                 this.totalVisible = 5
             }
             return val
         },
+
+        async getProjects() {
+            const api = await this.axios.get('/api/historial/obtenerProyectos')
+            this.projects = api.data
+            this.loadingVar = false
+        },
+
+        async getDetails(item) {
+            const body = {
+                id: item.proy_id
+            }
+            console.log("🚀 ~ file: Historial.vue ~ line 93 ~ getDetails ~ body", body)
+
+            const api = await this.axios.post('/api/historial/obtenerDetalles', body)
+            this.details = api.data
+            console.log("🚀 ~ file: Historial.vue ~ line 95 ~ getDetails ~ api.data", api.data)
+        }
+
     },
     created() {
-        this.getPhotos()
+        this.getProjects()
     },
 
 }
