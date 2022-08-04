@@ -1,45 +1,113 @@
 <template>
-  <v-container fluid style="height: 100%;">
-    <v-card height="100%">
-      <v-toolbar flat color="primary" dark>
-        <v-spacer></v-spacer>
-        <div v-if="!isMobile()">
-          <v-toolbar-title>
-            PROYECTOS PENDIENTES
-          </v-toolbar-title>
-        </div>
-        <div v-else>
-          <v-toolbar-title class="mobile">
-            PROYECTOS PENDIENTES
-          </v-toolbar-title>
-        </div>
-        <v-spacer></v-spacer>
-      </v-toolbar>
-      <v-card-text>
-
-      </v-card-text>
-    </v-card>
-  </v-container>
+    <v-container grid-list-xs fluid style="height: 100%;">
+        <v-data-table :headers="headers" :items="projects" :search="search" :page.sync="page"
+            no-results-text="No hay coincidencias" no-data-text="No hay información" :items-per-page="itemsPerPage"
+            :expanded.sync="expanded" :single-expand="true" item-key="proy_id" show-expand :loading="loadingVar"
+            loading-text="Cargando información..." hide-default-footer class="elevation-10"
+            @page-count="pageCount = $event" @item-expanded="getDetails"
+            @click:row="(item, slot) => { slot.expand(!slot.isExpanded) }">
+            <template v-slot:top>
+                <div v-if="!isMobile()">
+                    <v-toolbar flat color="primary" dark>
+                        <v-row justify="space-between">
+                            <v-col cols="auto" class="d-flex align-center">
+                                <v-toolbar-title>
+                                    Proyectos Activos
+                                </v-toolbar-title>
+                            </v-col>
+                            <v-col cols="auto">
+                                <v-text-field v-model="search" append-icon="mdi-magnify" label="Buscar" single-line
+                                    hide-details class="shrink" rounded filled dense></v-text-field>
+                            </v-col>
+                        </v-row>
+                    </v-toolbar>
+                </div>
+                <div v-else>
+                    <v-toolbar flat height="150px" color="primary" dark>
+                        <v-row justify="space-between">
+                            <v-col cols="12" class="d-flex justify-center">
+                                <v-toolbar-title class="mobile">
+                                    HISTORIAL DE PROYECTOS
+                                </v-toolbar-title>
+                            </v-col>
+                            <v-col cols="12">
+                                <v-text-field v-model="search" append-icon="mdi-magnify" label="Buscar" single-line
+                                    hide-details class="shrink" rounded filled dense></v-text-field>
+                            </v-col>
+                        </v-row>
+                    </v-toolbar>
+                </div>
+            </template>
+            <template v-slot:expanded-item="{ headers }">
+                <td :colspan="headers.length">
+                    <div v-for="(detalles, index) in details" :key="index">
+                        <span>{{ index + 1 }}.- {{ detalles.dp_comentarios }}</span><br>
+                    </div>
+                </td>
+            </template>
+        </v-data-table>
+        <v-pagination :length="pageCount" v-model="page" :total-visible="totalVisible" class="mt-2"></v-pagination>
+    </v-container>
 </template>
 
 <script>
 export default {
-  name: "Home",
-  data() {
-    return {
-    }
-  },
+    name: 'Home',
+    data() {
+        return {
+            totalVisible: 10,
+            loadingVar: true,
+            itemsPerPage: 10,
+            search: '',
+            page: 1,
+            pageCount: 0,
+            expanded: [],
+            headers: [
+                { text: 'ID', value: 'proy_id' },
+                { text: 'CLIENTE', align: 'start', sortable: false, value: 'proy_cliente', },
+                { text: 'DOMICILIO', value: 'proy_domicilio' },
+                { text: 'FECHA', value: 'proy_fecha' },
+                { text: 'IMPORTE', value: 'proy_total' },
+                { text: '', value: 'data-table-expand' },
+            ],
+            projects: [],
+            details: [],
 
-  methods: {
-    isMobile() {
-      const val = window.innerWidth <= 600 && window.innerHeight <= 1000
-      return val
-    }
-  },
+        }
+    },
+    methods: {
+        isMobile() {
+            const val = window.innerWidth <= 600 && window.innerHeight <= 1000
+            if (val) {
+                this.itemsPerPage = 2
+                this.totalVisible = 5
+            }
+            return val
+        },
 
-  created() {
+        async getProjects() {
+            const api = await this.axios.get('/api/inicio/obtenerProyectosActivos')
+            this.projects = api.data
+            this.loadingVar = false
+        },
 
-  },
+        async getDetails({ item, value }) {
+            if (value) {
+                const body = {
+                    id: item.proy_id
+                }
+                const api = await this.axios.post('/api/historial/obtenerDetalles', body)
+                this.details = api.data
+            }
+        }
+
+    },
+    created() {
+        this.getProjects()
+    },
+
 }
 </script>
 
+<style>
+</style>

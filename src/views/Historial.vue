@@ -2,10 +2,10 @@
     <v-container grid-list-xs fluid style="height: 100%;">
         <v-data-table :headers="headers" :items="projects" :search="search" :page.sync="page"
             no-results-text="No hay coincidencias" no-data-text="No hay información" :items-per-page="itemsPerPage"
-            :expanded.sync="expanded" single-expand item-key="title" show-expand :loading="loadingVar"
+            :expanded.sync="expanded" :single-expand="true" item-key="proy_id" show-expand :loading="loadingVar"
             loading-text="Cargando información..." hide-default-footer class="elevation-10"
-            @page-count="pageCount = $event"
-            @click:row="(item, slot) => { slot.expand(!slot.isExpanded); if(!slot.isExpanded) getDetails(item) }">
+            @page-count="pageCount = $event" @item-expanded="getDetails"
+            @click:row="(item, slot) => { slot.expand(!slot.isExpanded) }">
             <template v-slot:top>
                 <div v-if="!isMobile()">
                     <v-toolbar flat color="primary" dark>
@@ -91,15 +91,14 @@ export default {
             this.loadingVar = false
         },
 
-        async getDetails(item) {
-            const body = {
-                id: item.proy_id
+        async getDetails({ item, value }) {
+            if (value) {
+                const body = {
+                    id: item.proy_id
+                }
+                const api = await this.axios.post('/api/historial/obtenerDetalles', body)
+                this.details = api.data
             }
-            console.log("🚀 ~ file: Historial.vue ~ line 93 ~ getDetails ~ body", body)
-
-            const api = await this.axios.post('/api/historial/obtenerDetalles', body)
-            this.details = api.data
-            console.log("🚀 ~ file: Historial.vue ~ line 95 ~ getDetails ~ api.data", api.data)
         }
 
     },

@@ -163,7 +163,7 @@ export default {
 }
 
 .v-data-table>.v-data-table__wrapper>table>tbody>tr>td>.v-data-table__mobile-row__cell{
-  word-break: break-all;
+  word-break: break-word;
   width: 50%;
 }
 

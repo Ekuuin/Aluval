@@ -1,9 +1,14 @@
+from time import strftime
 from flask import Flask, jsonify, request, redirect
 from flaskext.mysql import MySQL
 from pymysql.cursors import DictCursor
+from datetime import datetime
+import locale
+
+locale.setlocale(locale.LC_ALL, 'es-MX')
 
 app = Flask(__name__)
-#Importamos DictCursor para mostrar los resultados obtenidos de la query en modo diccionario
+# Importamos DictCursor para mostrar los resultados obtenidos de la query en modo diccionario
 mysql = MySQL(cursorclass=DictCursor)
 app.config['MYSQL_DATABASE_HOST'] = 'localhost'
 app.config['MYSQL_DATABASE_USER'] = 'root'
@@ -21,18 +26,18 @@ else:
     print("---------Conexion DB establecida---------")
 
 
-
 @app.route('/api/mensaje2')
 def mensajeBienvenida():
     a = "asdad"
     return jsonify("alaberga")
 
+
 @app.route('/api/mensaje')
 def mensaje():
-    return jsonify(mensaje = "Nuevo mensaje desde un servidor Flask")
+    return jsonify(mensaje="Nuevo mensaje desde un servidor Flask")
 
 
-#Rutas de inventario
+# Rutas de inventario
 
 @app.route('/api/inventario/nuevoProducto', methods=["POST"])
 def nuevoProducto():
@@ -43,13 +48,14 @@ def nuevoProducto():
     _productCost = _post_data['cost']
     _productUnit = _post_data['units']
     query = """INSERT INTO productos (pro_name, pro_category, pro_brand, pro_cost, pro_unit) VALUES (%s, %s, %s, %s, %s)"""
-    datos = (_productName, _productIDCategory, _productBrand, _productCost, _productUnit)
+    datos = (_productName, _productIDCategory,
+             _productBrand, _productCost, _productUnit)
     conn = mysql.connect()
     cursor = conn.cursor()
     cursor.execute(query, datos)
     conn.commit()
-    return jsonify(msg = "OK", product = _post_data)
-    
+    return jsonify(msg="OK", product=_post_data)
+
 
 @app.route('/api/inventario/nuevaCategoria', methods=["POST"])
 def nuevaCategoria():
@@ -67,6 +73,7 @@ def nuevaCategoria():
     conn.commit()
     return jsonify(data)
 
+
 @app.route('/api/inventario/obtenerProductos')
 def obtenerProductos():
     query = """SELECT * FROM productos AS p, categoria AS c WHERE p.pro_category = c.cat_id"""
@@ -75,6 +82,7 @@ def obtenerProductos():
     cursor.execute(query)
     data = cursor.fetchall()
     return jsonify(data)
+
 
 @app.route('/api/inventario/obtenerCategorias')
 def obtenerCategorias():
@@ -85,6 +93,7 @@ def obtenerCategorias():
     data = cursor.fetchall()
     return jsonify(data)
 
+
 @app.route('/api/inventario/borrarProducto/<int:id>')
 def borrarProducto(id):
     query = "DELETE FROM productos WHERE pro_id = %s"
@@ -92,7 +101,18 @@ def borrarProducto(id):
     cursor = conn.cursor()
     cursor.execute(query, id)
     conn.commit()
-    return jsonify(msg = "Successfully deleted", id = id)
+    return jsonify(msg="Successfully deleted", id=id)
+
+
+@app.route('/api/inventario/borrarCategoria/<int:id>')
+def borrarCategoria(id):
+    query = "DELETE FROM categoria WHERE cat_id = %s"
+    conn = mysql.connect()
+    cursor = conn.cursor()
+    cursor.execute(query, id)
+    conn.commit()
+    return jsonify(msg="Successfully deleted", id=id)
+
 
 @app.route('/api/inventario/actualizarProducto', methods=["POST"])
 def actualizarProducto():
@@ -103,7 +123,8 @@ def actualizarProducto():
     _productBrand = data['pro_brand']
     _productCost = data['pro_cost']
     _productUnit = data['pro_unit']
-    data = (_productName, _productCategory, _productBrand, _productCost, _productUnit, _productId)
+    data = (_productName, _productCategory, _productBrand,
+            _productCost, _productUnit, _productId)
 
     query = "UPDATE productos SET pro_name = %s, pro_category = %s, pro_brand = %s, pro_cost = %s, pro_unit = %s WHERE pro_id = %s"
     conn = mysql.connect()
@@ -112,7 +133,20 @@ def actualizarProducto():
     conn.commit()
     return jsonify(f"Product ID {_productId} successfully updated")
 
-#Rutas de Historial
+
+@app.route('/api/inventario/actualizarCategoria', methods=["POST"])
+def actualizarCategoria():
+    data = request.get_json(silent=True)
+    data = (data['cat_name'], data['cat_id'])
+    query = "UPDATE categoria SET cat_name = %s WHERE cat_id = %s"
+    conn = mysql.connect()
+    cursor = conn.cursor()
+    cursor.execute(query, data)
+    conn.commit()
+    return jsonify(f"Category ID {data[0]} successfully updated")
+
+# Rutas de Historial
+
 
 @app.route('/api/historial/obtenerProyectos')
 def obtenerProyectos():
@@ -121,7 +155,11 @@ def obtenerProyectos():
     cursor = conn.cursor()
     cursor.execute(query)
     data = cursor.fetchall()
+    for project in data:
+        project['proy_fecha'] = project['proy_fecha'].strftime("%d/%B/%Y")
+        print(project['proy_fecha'])
     return jsonify(data)
+
 
 @app.route('/api/historial/obtenerDetalles', methods=["POST"])
 def obtenerDetalles():
@@ -133,3 +171,17 @@ def obtenerDetalles():
     data = cursor.fetchall()
     return jsonify(data)
 
+
+#Rutas de Inicio
+
+@app.route('/api/inicio/obtenerProyectosActivos')
+def obtenerProyectosActivos():
+    query = "SELECT * FROM proyectos WHERE proy_estado = 'ACTIVO'"
+    conn = mysql.connect()
+    cursor = conn.cursor()
+    cursor.execute(query)
+    data = cursor.fetchall()
+    for project in data:
+        project['proy_fecha'] = project['proy_fecha'].strftime("%d/%B/%Y")
+        print(project['proy_fecha'])
+    return jsonify(data)
