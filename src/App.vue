@@ -145,6 +145,15 @@ export default {
   font-size: 16px !important;
 }
 
+.v-toolbar__title.detalles{
+  font-size: 1em !important;
+  height: auto;
+}
+
+header.v-toolbar.detalles, header.v-toolbar.detalles>.v-toolbar__content{
+  height: auto !important;
+}
+
 .v-toolbar__title {
   font-size: 1.5rem !important;
   font-weight: 500;

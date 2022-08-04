@@ -1,3 +1,4 @@
+from threading import local
 from time import strftime
 from flask import Flask, jsonify, request, redirect
 from flaskext.mysql import MySQL
@@ -81,6 +82,8 @@ def obtenerProductos():
     cursor = conn.cursor()
     cursor.execute(query)
     data = cursor.fetchall()
+    for product in data:
+        product['pro_cost'] = locale.currency(product['pro_cost'], grouping=True)
     return jsonify(data)
 
 
@@ -157,7 +160,7 @@ def obtenerProyectos():
     data = cursor.fetchall()
     for project in data:
         project['proy_fecha'] = project['proy_fecha'].strftime("%d/%B/%Y")
-        print(project['proy_fecha'])
+        project['proy_total'] = locale.currency(project['proy_total'], grouping=True)
     return jsonify(data)
 
 
@@ -183,5 +186,5 @@ def obtenerProyectosActivos():
     data = cursor.fetchall()
     for project in data:
         project['proy_fecha'] = project['proy_fecha'].strftime("%d/%B/%Y")
-        print(project['proy_fecha'])
+        project['proy_total'] = locale.currency(project['proy_total'], grouping=True)
     return jsonify(data)

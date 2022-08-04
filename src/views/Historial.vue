@@ -7,7 +7,7 @@
             @page-count="pageCount = $event" @item-expanded="getDetails"
             @click:row="(item, slot) => { slot.expand(!slot.isExpanded) }">
             <template v-slot:top>
-                <div v-if="!isMobile()">
+                <div v-if="!mobile">
                     <v-toolbar flat color="primary" dark>
                         <v-row justify="space-between">
                             <v-col cols="auto" class="d-flex align-center">
@@ -38,10 +38,48 @@
                     </v-toolbar>
                 </div>
             </template>
+            <template v-slot:item.estado="{ item }">
+                <v-chip :color="getColor(item.proy_estado)" text-color="white">{{ item.proy_estado }}</v-chip>
+            </template>
             <template v-slot:expanded-item="{ headers }">
-                <td :colspan="headers.length">
-                    <div v-for="(detalles, index) in details" :key="index">
-                        <span>{{ index + 1 }}.- {{ detalles.dp_comentarios }}</span><br>
+                <td v-if="!mobile" :colspan="headers.length" style="padding: 0px;">
+                    <v-card tile flat>
+                        <v-toolbar flat color="blue" dark class="detalles">
+                            <v-toolbar-title class="detalles">
+                                Detalles del proyecto
+                            </v-toolbar-title>
+                        </v-toolbar>
+                        <v-card-text>
+                            <div v-for="(detalles, index) in details" :key="index">
+                                <span class="body-1">{{ index + 1 }}. {{ detalles.dp_comentarios }}</span><br>
+                            </div>
+                        </v-card-text>
+                        <v-card-actions>
+                            <v-btn color="primary">text</v-btn>
+                            <v-btn color="primary">text</v-btn>
+                        </v-card-actions>
+                    </v-card>
+                </td>
+
+                <td v-else class="v-data-table__mobile-row" style="padding: 0px;">
+                    <div class="v-data-table__mobile-row__cell" style="width: 100%; text-align: left;">
+                        <v-card tile flat>
+                            <v-toolbar flat color="blue" dark class="detalles">
+                                <v-toolbar-title class="detalles">
+                                    Detalles del proyecto
+                                </v-toolbar-title>
+                            </v-toolbar>
+                            <v-card-text>
+                                <span v-for="(detalles, index) in details" :key="index" class="body-1">
+                                    {{ index + 1 }}.{{ detalles.dp_comentarios }}
+                                </span>
+                                <br>
+                            </v-card-text>
+                            <v-card-actions>
+                                <v-btn color="primary">text</v-btn>
+                                <v-btn color="primary">text</v-btn>
+                            </v-card-actions>
+                        </v-card>
                     </div>
                 </td>
             </template>
@@ -55,6 +93,7 @@ export default {
     name: 'Historial',
     data() {
         return {
+            mobile: "",
             totalVisible: 10,
             loadingVar: true,
             itemsPerPage: 10,
@@ -68,6 +107,7 @@ export default {
                 { text: 'DOMICILIO', value: 'proy_domicilio' },
                 { text: 'FECHA', value: 'proy_fecha' },
                 { text: 'IMPORTE', value: 'proy_total' },
+                { text: 'ESTADO', value: 'estado' },
                 { text: '', value: 'data-table-expand' },
             ],
             projects: [],
@@ -77,12 +117,11 @@ export default {
     },
     methods: {
         isMobile() {
-            const val = window.innerWidth <= 600 && window.innerHeight <= 1000
-            if (val) {
+            this.mobile = window.innerWidth <= 600 && window.innerHeight <= 1000
+            if (this.mobile) {
                 this.itemsPerPage = 2
                 this.totalVisible = 5
             }
-            return val
         },
 
         async getProjects() {
@@ -99,10 +138,20 @@ export default {
                 const api = await this.axios.post('/api/historial/obtenerDetalles', body)
                 this.details = api.data
             }
+        },
+
+        getColor(status) {
+            if (status === 'ACTIVO')
+                return 'warning'
+            else if (status === 'PENDIENTE')
+                return 'error'
+            else
+                return 'green'
         }
 
     },
     created() {
+        this.isMobile()
         this.getProjects()
     },
 

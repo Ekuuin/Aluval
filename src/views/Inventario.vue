@@ -9,7 +9,7 @@
             no-data-text="No hay información" :loading="loadingVar" loading-text="Cargando información..."
             no-results-text="No hay coincidencias" @page-count="pageCount = $event" sort-by="name">
             <template v-slot:top>
-                <div v-if="!isMobile()">
+                <div v-if="!mobile">
                     <v-toolbar flat color="primary" dark>
                         <v-toolbar-title>
                             INVENTARIO
@@ -40,7 +40,6 @@
                     </v-toolbar>
                 </div>
             </template>
-            <!-- -->
             <template v-slot:item.actions="{ item }">
                 <v-btn color="blue" depressed fab x-small dark class="mr-6" @click="dialog_EditProduct(item)">
                     <font-awesome-icon icon="fa-solid fa-pencil" class="fa-xl" />
@@ -56,7 +55,7 @@
     * ---------DIALOG EDITAR PRODUCTO---------
     -->
 
-        <div v-if="!isMobile()">
+        <div v-if="!mobile">
             <v-dialog v-model="dialogEditProduct" scrollable persistent max-width="800" transition="dialog-transition">
                 <v-card>
                     <v-toolbar flat color="primary" dark style="flex: none">
@@ -140,7 +139,7 @@
     * ---------DIALOG NUEVO PRODUCTO---------
     -->
 
-        <div v-if="!isMobile()">
+        <div v-if="!mobile">
             <v-dialog v-model="dialogNewProduct" scrollable persistent max-width="800" transition="dialog-transition">
                 <v-card>
                     <v-toolbar flat color="primary" dark style="flex: none">
@@ -330,6 +329,7 @@ export default {
     name: "Inventario",
     data() {
         return {
+            mobile: "",
             totalVisible: 10,
             loadingVar: true,
             itemsPerPage: 12,
@@ -380,12 +380,11 @@ export default {
     methods: {
 
         isMobile() {
-            const val = (window.innerWidth <= 600 && window.innerHeight <= 1000)
-            if (val) {
+            this.mobile = (window.innerWidth <= 600 && window.innerHeight <= 1000)
+            if (this.mobile) {
                 this.itemsPerPage = 2
                 this.totalVisible = 5
             }
-            return val
         },
 
         async addNewProduct() {
@@ -528,6 +527,7 @@ export default {
     },
 
     created() {
+        this.isMobile()
         this.getProducts()
         this.getCategories()
     },
