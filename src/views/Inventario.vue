@@ -306,12 +306,12 @@
             </v-toolbar-title>
         </v-toolbar>
         <v-card-text>
-            Esto también afectará a los productos dentro de la categoría
+            <span class="title">Esto también eliminará a los productos dentro de la categoría.</span>
         </v-card-text>
         <v-card-actions>
             <v-spacer></v-spacer>
-            <v-btn color="error" @click="dialogWarningDelete = false">Cerrar</v-btn>
-            <v-btn color="success" @click = "deleteCategory()">Guardar</v-btn>
+            <v-btn color="error" @click="dialogWarningDelete = false" class="mr-5">Cerrar</v-btn>
+            <v-btn color="success" @click = "deleteCategory()">Sí</v-btn>
             <v-spacer></v-spacer>
         </v-card-actions>
     </v-card>

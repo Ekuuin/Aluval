@@ -5,6 +5,8 @@ import store from './store'
 import vuetify from './plugins/vuetify'
 import VueAxios from 'vue-axios'
 import axios from 'axios'
+import VueSweetalert2 from 'vue-sweetalert2'
+import 'sweetalert2/dist/sweetalert2.min.css'
 
 /* import the fontawesome core */
 import { library } from '@fortawesome/fontawesome-svg-core'
@@ -26,6 +28,7 @@ Vue.component('font-awesome-icon', FontAwesomeIcon)
 
 Vue.config.productionTip = false
 
+Vue.use(VueSweetalert2)
 Vue.use(VueAxios, axios);
 axios.defaults.baseURL = 'http://192.168.3.13:5000'
 

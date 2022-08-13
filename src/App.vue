@@ -1,14 +1,16 @@
 <template>
   <v-app>
-    <v-app-bar app color="primary" dark height="100">
+    <v-app-bar app color="primary" dark height="100px">
       <div class="d-flex align-center">
-        <v-img alt="ALUVAL Logo" class="shrink mr-2" contain width="160" src="@/assets/logoH.png"
+        <v-img v-if="!mobile" alt="ALUVAL Logo" class="shrink mr-2" contain src="@/assets/logoWeb.png"
+          transition="scale-transition" />
+        <v-img v-else alt="ALUVAL Logo" class="shrink mr-2" contain width="180" src="@/assets/logoH.png"
           transition="scale-transition" />
       </div>
 
       <v-spacer></v-spacer>
 
-      <div v-if="!isMobile()">
+      <div v-if="!mobile">
         <router-link :to="{ name: 'home' }" class="mr-5">
           <v-btn text x-large>
             <span>
@@ -43,11 +45,11 @@
       </div>
 
       <div v-else>
-        <v-app-bar-nav-icon @click="drawer = true"></v-app-bar-nav-icon>
+        <v-app-bar-nav-icon @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
       </div>
     </v-app-bar>
 
-    <v-navigation-drawer hide-overlay v-model="drawer" absolute temporary dark color="primary">
+    <v-navigation-drawer hide-overlay v-model="drawer" fixed app temporary dark color="primary">
       <br>
       <v-row>
         <v-col class="d-flex justify-center">
@@ -63,7 +65,7 @@
               <v-icon>mdi-home</v-icon>
             </v-list-item-icon>
             <v-list-item-title>
-              <router-link class="wtext overline" :to="{ name: 'home' }">
+              <router-link class="wtext" :to="{ name: 'home' }">
                 INICIO
               </router-link>
             </v-list-item-title>
@@ -74,7 +76,7 @@
               <v-icon>mdi-currency-usd</v-icon>
             </v-list-item-icon>
             <v-list-item-title>
-              <router-link class="wtext overline" :to="{ name: 'cotizar' }">
+              <router-link class="wtext" :to="{ name: 'cotizar' }">
                 COTIZAR
               </router-link>
             </v-list-item-title>
@@ -85,7 +87,7 @@
               <v-icon>mdi-bag-personal</v-icon>
             </v-list-item-icon>
             <v-list-item-title>
-              <router-link class="wtext overline" :to="{ name: 'inventario' }">
+              <router-link class="wtext" :to="{ name: 'inventario' }">
                 INVENTARIO
               </router-link>
             </v-list-item-title>
@@ -96,7 +98,7 @@
               <v-icon>mdi-history</v-icon>
             </v-list-item-icon>
             <v-list-item-title>
-              <router-link class="wtext overline" :to="{ name: 'historial' }">
+              <router-link class="wtext" :to="{ name: 'historial' }">
                 HISTORIAL
               </router-link>
             </v-list-item-title>
@@ -118,16 +120,18 @@ export default {
 
   data: () => ({
     drawer: false,
-    group: null
+    mobile: "",
+    group: ""
   }),
 
   methods: {
     isMobile() {
-      return ((window.innerWidth <= 600) && (window.innerHeight <= 1000))
+      this.mobile = window.innerWidth <= 600 && window.innerHeight <= 1000
     }
   },
 
   created() {
+    this.isMobile()
   },
 };
 </script>
@@ -183,14 +187,19 @@ header.v-toolbar.detalles, header.v-toolbar.detalles>.v-toolbar__content{
 .v-card__text{
   padding: 10px !important
 }
-</style>
 
-<style lang="scss" scoped>
+.v-divider{
+  border-color: rgba(0,0,0,0.4) !important;
+}
+
 .wtext {
   display: inline-block;
-  width: 100%;
   text-decoration: none;
-  color: white;
+  color: white !important;
   font-size: large !important;
+  font-family: "Roboto", sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.17em;
+  font-weight: 500;
 }
 </style>

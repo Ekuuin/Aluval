@@ -1,4 +1,3 @@
-from threading import local
 from time import strftime
 from flask import Flask, jsonify, request, redirect
 from flaskext.mysql import MySQL
@@ -83,7 +82,8 @@ def obtenerProductos():
     cursor.execute(query)
     data = cursor.fetchall()
     for product in data:
-        product['pro_cost'] = locale.currency(product['pro_cost'], grouping=True)
+        product['pro_cost'] = locale.currency(
+            product['pro_cost'], grouping=True)
     return jsonify(data)
 
 
@@ -160,7 +160,8 @@ def obtenerProyectos():
     data = cursor.fetchall()
     for project in data:
         project['proy_fecha'] = project['proy_fecha'].strftime("%d/%B/%Y")
-        project['proy_total'] = locale.currency(project['proy_total'], grouping=True)
+        project['proy_total'] = locale.currency(
+            project['proy_total'], grouping=True)
     return jsonify(data)
 
 
@@ -175,7 +176,18 @@ def obtenerDetalles():
     return jsonify(data)
 
 
-#Rutas de Inicio
+@app.route('/api/historial/actualizarEstatus', methods=["POST"])
+def actualizarEstado():
+    data = request.get_json(silent=True)
+    query = "UPDATE proyectos SET proy_estado = %s WHERE proy_id = %s"
+    conn = mysql.connect()
+    cursor = conn.cursor()
+    cursor.execute(query, (data['status'], data['id']))
+    conn.commit()
+    return jsonify(f"Project ID-{data['id']} updated successfully")
+
+
+# Rutas de Inicio
 
 @app.route('/api/inicio/obtenerProyectosActivos')
 def obtenerProyectosActivos():
@@ -186,5 +198,86 @@ def obtenerProyectosActivos():
     data = cursor.fetchall()
     for project in data:
         project['proy_fecha'] = project['proy_fecha'].strftime("%d/%B/%Y")
-        project['proy_total'] = locale.currency(project['proy_total'], grouping=True)
+        project['proy_total'] = locale.currency(
+            project['proy_total'], grouping=True)
     return jsonify(data)
+
+
+# Rutas de Cotización
+
+@app.route('/api/cotizacion/nuevoProyecto', methods=["POST"])
+def nuevoProyecto():
+    data = request.get_json(silent=True)
+    _name = data['customer']
+    _address = data['address']
+    _total = data['total']
+
+    query = """INSERT INTO proyectos (proy_fecha, proy_cliente, proy_domicilio, proy_total) VALUES (CURDATE(), %s, %s, %s);"""
+    conn = mysql.connect()
+    cursor = conn.cursor()
+    cursor.execute(query, (_name, _address, _total))
+    conn.commit()
+
+    query = "SELECT MAX(proy_id) AS id FROM proyectos"
+    cursor.execute(query)
+    id = cursor.fetchall()
+
+    for data in data['product']:
+        _prodId = data['cristal']
+        _type = data["type"]
+        _perfil = data['perfil']
+        _quantity = data["quantity"]
+        _width = data["width"]
+        _height = data["height"]
+        _comments = data["comments"]
+        _cost = data["cost"]
+        query = """INSERT INTO detalles_pedido(dp_prod_id, dp_proy_id, dp_costo, dp_tipo, dp_perfil, dp_cantidad, dp_ancho, dp_altura, dp_comentarios)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)"""
+        cursor.execute(query, (_prodId, id[0]['id'], _cost, _type,
+                       _perfil, _quantity, _width, _height, _comments))
+        conn.commit()
+    return jsonify("OK")
+
+
+@app.route('/api/cotizacion/obtenerCristales')
+def obtenerCristales():
+    query = "SELECT p.* FROM productos AS p INNER JOIN categoria AS c ON p.pro_category = c.cat_id AND c.cat_name = 'Cristales'"
+    conn = mysql.connect()
+    cursor = conn.cursor()
+    cursor.execute(query)
+    products = cursor.fetchall()
+    return jsonify(products)
+
+
+@app.route('/api/cotizacion/obtenerPerfiles')
+def obtenerPerfiles():
+    query = "SELECT p.* FROM productos AS p INNER JOIN categoria AS c ON p.pro_category = c.cat_id AND c.cat_name = 'Perfiles'"
+    conn = mysql.connect()
+    cursor = conn.cursor()
+    cursor.execute(query)
+    products = cursor.fetchall()
+    return jsonify(products)
+
+
+# Rutas PDF
+
+@app.route('/api/pdf/obtenerProyecto', methods=['POST'])
+def obtenerProyecto():
+    data = request.get_json(silent=True)
+    query = "SELECT * FROM proyectos WHERE proy_id = %s"
+    conn = mysql.connect()
+    cursor = conn.cursor()
+    cursor.execute(query, data['id'])
+    project = cursor.fetchall()
+    project[0]['proy_fecha'] = project[0]['proy_fecha'].strftime("%d/%m/%Y")
+    return jsonify(project)
+
+@app.route('/api/pdf/obtenerProductos', methods=['POST'])
+def obtenerProductosPDF():
+    data = request.get_json(silent=True)
+    query = "SELECT * FROM detalles_pedido AS dp INNER JOIN productos AS p ON dp.dp_prod_id = p.pro_id INNER JOIN productos AS p2 ON dp.dp_perfil = p2.pro_id WHERE dp.dp_proy_id = %s"
+    conn = mysql.connect()
+    cursor = conn.cursor()
+    cursor.execute(query, data['id'])
+    products = cursor.fetchall()
+    return jsonify(products)

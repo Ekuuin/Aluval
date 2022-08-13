@@ -7,34 +7,39 @@
             @page-count="pageCount = $event" @item-expanded="getDetails"
             @click:row="(item, slot) => { slot.expand(!slot.isExpanded) }">
             <template v-slot:top>
-                    <v-toolbar v-if="!mobile" flat color="primary" dark>
-                        <v-row justify="space-between">
-                            <v-col cols="auto" class="d-flex align-center">
-                                <v-toolbar-title>
-                                    Proyectos Activos
-                                </v-toolbar-title>
-                            </v-col>
-                            <v-col cols="auto">
-                                <v-text-field v-model="search" append-icon="mdi-magnify" label="Buscar" single-line
-                                    hide-details class="shrink" rounded filled dense></v-text-field>
-                            </v-col>
-                        </v-row>
-                    </v-toolbar>
-                    <v-toolbar v-else flat height="150px" color="primary" dark>
-                        <v-row justify="space-between">
-                            <v-col cols="12" class="d-flex justify-center">
-                                <v-toolbar-title class="mobile">
-                                    Proyectos Activos
-                                </v-toolbar-title>
-                            </v-col>
-                            <v-col cols="12">
-                                <v-text-field v-model="search" append-icon="mdi-magnify" label="Buscar" single-line
-                                    hide-details class="shrink" rounded filled dense></v-text-field>
-                            </v-col>
-                        </v-row>
-                    </v-toolbar>
+                <v-toolbar v-if="!mobile" flat color="primary" dark>
+                    <v-row justify="space-between">
+                        <v-col cols="auto" class="d-flex align-center">
+                            <v-toolbar-title>
+                                Proyectos Activos
+                            </v-toolbar-title>
+                        </v-col>
+                        <v-col cols="auto">
+                            <v-text-field v-model="search" append-icon="mdi-magnify" label="Buscar" single-line
+                                hide-details class="shrink" rounded filled dense></v-text-field>
+                        </v-col>
+                    </v-row>
+                </v-toolbar>
+                <v-toolbar v-else flat height="150px" color="primary" dark>
+                    <v-row justify="space-between">
+                        <v-col cols="12" class="d-flex justify-center">
+                            <v-toolbar-title class="mobile">
+                                Proyectos Activos
+                            </v-toolbar-title>
+                        </v-col>
+                        <v-col cols="12">
+                            <v-text-field v-model="search" append-icon="mdi-magnify" label="Buscar" single-line
+                                hide-details class="shrink" rounded filled dense></v-text-field>
+                        </v-col>
+                    </v-row>
+                </v-toolbar>
             </template>
-            <template v-slot:expanded-item="{ headers }">
+
+            <template v-slot:item.estado="{ item }">
+                <v-chip :color="getColor(item.proy_estado)" text-color="white">{{ item.proy_estado }}</v-chip>
+            </template>
+
+            <template v-slot:expanded-item="{ headers, item }">
                 <td v-if="!mobile" :colspan="headers.length" style="padding: 0px;">
                     <v-card tile flat>
                         <v-toolbar flat color="blue" dark class="detalles">
@@ -48,8 +53,11 @@
                             </div>
                         </v-card-text>
                         <v-card-actions>
-                            <v-btn color="primary">text</v-btn>
-                            <v-btn color="primary">text</v-btn>
+                            <v-btn v-if="!(item.proy_estado === 'FINALIZADO' || item.proy_estado === 'CANCELADO')"
+                                @click="updateStatus('CANCELADO', item.proy_id)" color="error">Cancelar</v-btn>
+                            <v-btn v-if="item.proy_estado === 'ACTIVO'"
+                                @click="updateStatus('FINALIZADO', item.proy_id)" color="success">Finalizar</v-btn>
+                            <v-btn color="blue" dark>PDF</v-btn>
                         </v-card-actions>
                     </v-card>
                 </td>
@@ -69,8 +77,9 @@
                                 <br>
                             </v-card-text>
                             <v-card-actions>
-                                <v-btn color="primary">text</v-btn>
-                                <v-btn color="primary">text</v-btn>
+                                <v-btn color="error">Cancelar</v-btn>
+                                <v-btn color="success">Finalizar</v-btn>
+                                <v-btn color="blue" dark>PDF</v-btn>
                             </v-card-actions>
                         </v-card>
                     </div>
@@ -100,6 +109,7 @@ export default {
                 { text: 'DOMICILIO', value: 'proy_domicilio' },
                 { text: 'FECHA', value: 'proy_fecha' },
                 { text: 'IMPORTE', value: 'proy_total' },
+                { text: 'ESTADO', value: 'estado', sortable: false },
                 { text: '', value: 'data-table-expand' },
             ],
             projects: [],
@@ -130,6 +140,24 @@ export default {
                 const api = await this.axios.post('/api/historial/obtenerDetalles', body)
                 this.details = api.data
             }
+        },
+
+        async updateStatus(status, id) {
+            const body = {
+                status: status,
+                id: id
+            }
+            await this.axios.post('/api/historial/actualizarEstatus', body)
+            this.getProjects()
+        },
+
+        getColor(status) {
+            if (status === 'ACTIVO')
+                return 'warning'
+            else if (status === 'PENDIENTE')
+                return 'error'
+            else
+                return 'green'
         }
 
     },

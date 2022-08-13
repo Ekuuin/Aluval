@@ -38,10 +38,12 @@
                     </v-toolbar>
                 </div>
             </template>
+
             <template v-slot:item.estado="{ item }">
                 <v-chip :color="getColor(item.proy_estado)" text-color="white">{{ item.proy_estado }}</v-chip>
             </template>
-            <template v-slot:expanded-item="{ headers }">
+
+            <template v-slot:expanded-item="{ headers, item }">
                 <td v-if="!mobile" :colspan="headers.length" style="padding: 0px;">
                     <v-card tile flat>
                         <v-toolbar flat color="blue" dark class="detalles">
@@ -55,8 +57,13 @@
                             </div>
                         </v-card-text>
                         <v-card-actions>
-                            <v-btn color="primary">text</v-btn>
-                            <v-btn color="primary">text</v-btn>
+                            <v-btn v-if="!(item.proy_estado === 'FINALIZADO' || item.proy_estado === 'CANCELADO')"
+                                @click="updateStatus('CANCELADO', item.proy_id)" color="error">Cancelar</v-btn>
+                            <v-btn v-if="item.proy_estado === 'PENDIENTE'" color="success"
+                                @click="updateStatus('ACTIVO', item.proy_id)">Aceptar</v-btn>
+                            <v-btn v-if="item.proy_estado === 'ACTIVO'"
+                                @click="updateStatus('FINALIZADO', item.proy_id)" color="success">Finalizar</v-btn>
+                            <router-link :to="{name: 'pdf', params: {id: item.proy_id}}" class="ml-2"><v-btn color="blue" dark>PDF</v-btn></router-link>
                         </v-card-actions>
                     </v-card>
                 </td>
@@ -76,8 +83,13 @@
                                 <br>
                             </v-card-text>
                             <v-card-actions>
-                                <v-btn color="primary">text</v-btn>
-                                <v-btn color="primary">text</v-btn>
+                                <v-btn v-if="!(item.proy_estado === 'FINALIZADO' || item.proy_estado === 'CANCELADO')"
+                                    @click="updateStatus('CANCELADO', item.proy_id)" color="error">Cancelar</v-btn>
+                                <v-btn v-if="item.proy_estado === 'PENDIENTE'" color="success"
+                                    @click="updateStatus('ACTIVO', item.proy_id)">Aceptar</v-btn>
+                                <v-btn v-if="item.proy_estado === 'ACTIVO'"
+                                    @click="updateStatus('FINALIZADO', item.proy_id)" color="success">Finalizar</v-btn>
+                                <router-link :to="{name: 'pdf', params: {id: item.proy_id}}" class="ml-2"><v-btn color="blue" dark>PDF</v-btn></router-link>
                             </v-card-actions>
                         </v-card>
                     </div>
@@ -102,12 +114,12 @@ export default {
             pageCount: 0,
             expanded: [],
             headers: [
-                { text: 'ID', value: 'proy_id' },
+                { text: 'ID', value: 'proy_id'},
                 { text: 'CLIENTE', align: 'start', sortable: false, value: 'proy_cliente', },
                 { text: 'DOMICILIO', value: 'proy_domicilio' },
                 { text: 'FECHA', value: 'proy_fecha' },
                 { text: 'IMPORTE', value: 'proy_total' },
-                { text: 'ESTADO', value: 'estado' },
+                { text: 'ESTADO', value: 'estado', sortable: false },
                 { text: '', value: 'data-table-expand' },
             ],
             projects: [],
@@ -140,11 +152,23 @@ export default {
             }
         },
 
+        async updateStatus(status, id) {
+            const body = {
+                status: status,
+                id: id
+            }
+            await this.axios.post('/api/historial/actualizarEstatus', body)
+            this.getProjects()
+        }
+        ,
+
         getColor(status) {
             if (status === 'ACTIVO')
                 return 'warning'
-            else if (status === 'PENDIENTE')
+            else if (status === 'CANCELADO')
                 return 'error'
+            else if (status === 'PENDIENTE')
+                return 'grey'
             else
                 return 'green'
         }
