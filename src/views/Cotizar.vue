@@ -212,7 +212,7 @@ export default {
             })
         },
 
-        showAlert() {
+        showAlert(value) {
             // Use sweetalert2
             this.$swal({
                 title: 'Proyecto generado correctamente!',

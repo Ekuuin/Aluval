@@ -1,11 +1,7 @@
-<!--
-    ! Solo faltan las firmas y el ID de la cotización, arreglar el estilo de SweetAlert
--->
-
 <template>
-    <vue-html2pdf :show-layout="true" :float-layout="true" :enable-download="true" :preview-modal="false"
-        :paginate-elements-by-height="1400" filename="hee hee" :pdf-quality="2" :manual-pagination="false"
-        pdf-format="a4" pdf-orientation="portrait" pdf-content-width="100%" ref="html2Pdf"
+    <vue-html2pdf :show-layout="false" :float-layout="true" :enable-download="true" :preview-modal="false"
+        :paginate-elements-by-height="1400" :manual-pagination="false"
+        pdf-content-width="100%" ref="html2Pdf"
         :html-to-pdf-options="options">
         <section slot="pdf-content">
             <!-- PDF Content Here -->
@@ -28,7 +24,8 @@
                     <v-spacer></v-spacer>
                     <v-col cols="auto">
                         <span class="textS">
-                            {{ this.projectInfo[0]?.proy_fecha }}
+                            {{ this.projectInfo[0]?.proy_fecha }} <br><br>
+                            DIVISA: MXN
                         </span>
                     </v-col>
                 </v-row>
@@ -36,7 +33,7 @@
                 <v-divider></v-divider>
                 <v-row style="margin-left: 10px; margin-right: 10px;">
                     <v-col>
-                        <span class="textS">PRESUPUESTO:&nbsp;&nbsp;A0001/1</span>
+                        <span class="textS">PRESUPUESTO:&nbsp;&nbsp;{{String(this.projectInfo[0]?.proy_id).padStart(7, 'AV00000')}}</span>
                         <br>
                         <span class="textS">CLIENTE:&nbsp;&nbsp;{{
                                 this.projectInfo[0]?.proy_cliente
@@ -58,15 +55,15 @@
                 <v-row v-for="(products, index) in productsInfo" :key="index"
                     style="border-style: solid; margin-top: 9px;">
                     <v-col cols="auto">
-                        <img v-if="products.dp_tipo == 'Corredizo'.toUpperCase()" src="@/assets/corrediza.jpg">
+                        <img v-if="products.dp_tipo.toUpperCase() == 'CORREDIZO'" src="@/assets/corrediza.jpg">
                         <img v-else src="@/assets/fijo.png">
                     </v-col>
                     <v-col>
                         <span class="textS">MEDIDAS<br></span>
                         <span class="textS">ANCHO(H): </span>
-                        <span style="font-size: small;">{{ products.dp_ancho }}</span>
+                        <span style="font-size: small;">{{ products.dp_ancho }}m</span>
                         <span class="textS">&nbsp;&nbsp;&nbsp; ALTO(V): </span>
-                        <span style="font-size: small;">{{ products.dp_altura }}</span><br><br>
+                        <span style="font-size: small;">{{ products.dp_altura }}m</span><br><br>
                         <span class="textS">DESCRIPCIÓN</span><br>
                         <span style="font-size: small;">{{ products.dp_comentarios.toUpperCase() }}</span><br><br>
                         <span class="textS">COLOR: </span>
@@ -78,10 +75,11 @@
                         <span class="textS">CANTIDAD: </span><br>
                         <span style="font-size: small;">{{ products.dp_cantidad }}</span><br><br>
                         <span class="textS">COSTO: </span><br>
-                        <span style="font-size: small;">{{ (Number(products.dp_costo) / products.dp_cantidad).toFixed(2)
+                        <span style="font-size: small;">${{ (Number(products.dp_costo) /
+                                products.dp_cantidad).toFixed(2)
                         }}</span><br><br>
                         <span class="textS">TOTAL:</span><br>
-                        <span style="font-size: small;">{{ products.dp_costo }}</span>
+                        <span style="font-size: small;">${{ products.dp_costo }}</span>
                     </v-col>
                 </v-row>
                 <br>
@@ -96,21 +94,20 @@
                             TOTAL:
                         </span>
                     </v-col>
-                    <v-col cols="auto">
+                    <v-col cols="auto" style="text-align: right !important;">
                         <span class="textM">
-                            {{ (this.projectInfo[0]?.proy_total / 1.16).toFixed(2) }} <br>
-                            {{ (this.projectInfo[0]?.proy_total - (this.projectInfo[0]?.proy_total / 1.16)).toFixed(2)
+                            ${{ (this.projectInfo[0]?.proy_total / 1.16).toFixed(2) }} <br>
+                            ${{ (this.projectInfo[0]?.proy_total - (this.projectInfo[0]?.proy_total / 1.16)).toFixed(2)
                             }} <br>
-                            {{ this.projectInfo[0]?.proy_total }}
+                            ${{ this.projectInfo[0]?.proy_total }}
                         </span>
                     </v-col>
                 </v-row>
                 <v-divider></v-divider>
                 <v-divider></v-divider>
                 <br>
-                <br>
                 <v-row>
-                    <v-col style="line-height: 60%; text-align: justify;">
+                    <v-col style="line-height: 70%; text-align: justify;">
                         <span class="textXS">
                             CLÁUSULAS DEL PRESUPUESTO-CONTRATO <br>
 
@@ -186,6 +183,33 @@
                         </span>
                     </v-col>
                 </v-row>
+                <br>
+                <v-divider></v-divider>
+                <v-divider></v-divider>
+                <br>
+                <br>
+                <br>
+                <br>
+                <br>
+                <br>
+                <v-row>
+                    <v-col style="text-align: center;">
+                        <span class="textS">
+                            ______________________________ <br>
+                            {{ this.projectInfo[0]?.proy_cliente }}
+                        </span>
+                        
+                    </v-col>
+                    <v-col style="text-align: center;">
+                        <span class="textS" style="text-decoration: underline;">
+                            _____RAUL VALDES MELENDEZ_____ <br>
+                        </span>
+                        <span class="textS">
+                            ALUVAL S.A. de C.V. <br>
+                            raul.jvm@gmail.com
+                        </span>
+                    </v-col>
+                </v-row>
             </v-container>
         </section>
     </vue-html2pdf>
@@ -200,7 +224,7 @@ export default {
     data() {
         return {
             options: {
-                margin: 10,
+                margin: [2,2],
 
                 filename: 'Presupuesto-ID' + this.id + '.pdf',
 
@@ -216,7 +240,7 @@ export default {
                 },
 
                 jsPDF: {
-                    unit: 'mm',
+                    unit: 'cm',
                     format: 'a4',
                     orientation: 'portrait'
                 }

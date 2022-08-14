@@ -78,7 +78,7 @@
                             </v-toolbar>
                             <v-card-text>
                                 <span v-for="(detalles, index) in details" :key="index" class="body-1">
-                                    {{ index + 1 }}.{{ detalles.dp_comentarios }}
+                                    {{ index + 1 }}.{{ detalles.dp_comentarios }} <br>
                                 </span>
                                 <br>
                             </v-card-text>

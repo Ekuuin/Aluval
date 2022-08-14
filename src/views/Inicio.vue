@@ -57,7 +57,7 @@
                                 @click="updateStatus('CANCELADO', item.proy_id)" color="error">Cancelar</v-btn>
                             <v-btn v-if="item.proy_estado === 'ACTIVO'"
                                 @click="updateStatus('FINALIZADO', item.proy_id)" color="success">Finalizar</v-btn>
-                            <v-btn color="blue" dark>PDF</v-btn>
+                            <router-link :to="{name: 'pdf', params: {id: item.proy_id}}" class="ml-2"><v-btn color="blue" dark>PDF</v-btn></router-link>
                         </v-card-actions>
                     </v-card>
                 </td>
@@ -72,14 +72,13 @@
                             </v-toolbar>
                             <v-card-text>
                                 <span v-for="(detalles, index) in details" :key="index" class="body-1">
-                                    {{ index + 1 }}.{{ detalles.dp_comentarios }}
+                                    {{ index + 1 }}.{{ detalles.dp_comentarios }} <br>
                                 </span>
-                                <br>
                             </v-card-text>
                             <v-card-actions>
                                 <v-btn color="error">Cancelar</v-btn>
                                 <v-btn color="success">Finalizar</v-btn>
-                                <v-btn color="blue" dark>PDF</v-btn>
+                                <router-link :to="{name: 'pdf', params: {id: item.proy_id}}" class="ml-2"><v-btn color="blue" dark>PDF</v-btn></router-link>
                             </v-card-actions>
                         </v-card>
                     </div>

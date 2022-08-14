@@ -141,6 +141,11 @@ export default {
   background-color: #2575B0;
 }
 
+.swal2-container.swal2-center>.swal2-popup{
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 300 !important;
+}
+
 .v-data-table>.v-data-table__wrapper>table>thead>tr>th {
   font-size: 20px !important;
 }
