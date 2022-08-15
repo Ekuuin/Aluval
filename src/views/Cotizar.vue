@@ -51,7 +51,7 @@
                         <template v-slot:item="{ item }">
                             <tr>
                                 <td>
-                                    <v-autocomplete label="Tipo de trabajo" :items="items" v-model="item.type">
+                                    <v-autocomplete label="Tipo de trabajo" :items="items" v-model="item.type" >
                                     </v-autocomplete>
                                 </td>
                                 <td>
@@ -63,6 +63,11 @@
                                     <v-autocomplete :items='perfiles' item-value="pro_id" item-text="pro_name"
                                         v-model="item.perfil" @change="getCost()">
                                     </v-autocomplete>
+                                </td>
+                                <td>
+                                    <v-checkbox 
+                                        v-model="item.special" @change="getCost()">
+                                    </v-checkbox>
                                 </td>
                                 <td>
                                     <v-text-field v-model="item.quantity" min="0" type="number" @change="getCost()"
@@ -136,6 +141,7 @@ export default {
                     cristal: "",
                     perfil: "",
                     type: "",
+                    special: '',
                     quantity: 0,
                     width: 0,
                     height: 0,
@@ -152,14 +158,15 @@ export default {
             perfiles: [],
 
             headers: [
-                { text: 'TIPO', width: '200px', sortable: false },
-                { text: 'CRISTAL', width: '250px', sortable: false },
-                { text: 'PERFIL', width: '250px', sortable: false },
-                { text: 'CANTIDAD', width: '100px', sortable: false },
-                { text: 'ANCHO', width: '100px', sortable: false },
-                { text: 'ALTURA', width: '100px', sortable: false },
-                { text: 'COSTO', width: '100px', sortable: false },
-                { text: 'COMENTARIO', width: 'auto', sortable: false }
+                { text: 'TIPO', width: 'auto', sortable: false },
+                { text: 'CRISTAL', width: 'auto', sortable: false },
+                { text: 'PERFIL', width: 'auto', sortable: false },
+                { text: 'ESPECIAL', width: '1', sortable: false},
+                { text: 'CANTIDAD', width: '1', sortable: false },
+                { text: 'ANCHO', width: '1', sortable: false },
+                { text: 'ALTURA', width: '1', sortable: false },
+                { text: 'COSTO', width: '1', sortable: false },
+                { text: 'COMENTARIO', width: '25%', sortable: false }
             ],
 
             items: ["CORREDIZO", "FIJO"]
@@ -169,7 +176,7 @@ export default {
     methods: {
         async createProject() {
             const response = await this.axios.post('/api/cotizacion/nuevoProyecto', this.newProject)
-            console.log("🚀 ~ file: Cotizar.vue ~ line 172 ~ createProject ~ response", response)
+            console.log("🚀 ~ file: Cotizar.vue ~ line 179 ~ createProject ~ this.newProject", this.newProject)
             this.showAlert()
         },
 
@@ -204,6 +211,7 @@ export default {
                 perfil: "",
                 cristal: "",
                 type: "",
+                special: '',
                 quantity: 0,
                 width: 0,
                 height: 0,
@@ -244,3 +252,10 @@ export default {
 }
 
 </script>
+
+<style>
+.v-input__slot{
+    align-items: center;
+    justify-content: center;
+}
+</style>
