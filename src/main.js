@@ -16,11 +16,9 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 
 /* import all icons */
 import { fas } from '@fortawesome/free-solid-svg-icons'
-import { far } from '@fortawesome/free-regular-svg-icons'
 
 /* add icons to the library */
 library.add(fas)
-library.add(far)
 
 /* add font awesome icon component */
 Vue.component('font-awesome-icon', FontAwesomeIcon)
