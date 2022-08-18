@@ -224,8 +224,10 @@ def nuevoProyecto():
 
     for data in data['product']:
         _prodId = data['cristal']
+        if ( data["cristal"] != None):
+            _prodId = data['cristal']['pro_id']
         _type = data["type"]
-        _perfil = data['perfil']
+        _perfil = data['perfil']['pro_id']
         _quantity = data["quantity"]
         _width = data["width"]
         _height = data["height"]
@@ -275,7 +277,7 @@ def obtenerProyecto():
 @app.route('/api/pdf/obtenerProductos', methods=['POST'])
 def obtenerProductosPDF():
     data = request.get_json(silent=True)
-    query = "SELECT * FROM detalles_pedido AS dp INNER JOIN productos AS p ON dp.dp_prod_id = p.pro_id INNER JOIN productos AS p2 ON dp.dp_perfil = p2.pro_id WHERE dp.dp_proy_id = %s"
+    query = "SELECT * FROM detalles_pedido AS dp LEFT JOIN productos AS p ON dp.dp_prod_id = p.pro_id INNER JOIN productos AS p2 ON dp.dp_perfil = p2.pro_id WHERE dp.dp_proy_id = %s;"
     conn = mysql.connect()
     cursor = conn.cursor()
     cursor.execute(query, data['id'])

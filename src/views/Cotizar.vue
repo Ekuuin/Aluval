@@ -51,23 +51,18 @@
                         <template v-slot:item="{ item }">
                             <tr>
                                 <td>
-                                    <v-autocomplete label="Tipo de trabajo" :items="items" v-model="item.type" >
+                                    <v-autocomplete label="Tipo de trabajo" :items="items" v-model="item.type" @change="getCost()">
                                     </v-autocomplete>
                                 </td>
                                 <td>
-                                    <v-autocomplete :items='cristales' item-value="pro_id" item-text="pro_name"
-                                        v-model="item.cristal" @change="getCost()">
+                                    <v-autocomplete :items='cristales' item-value="pro_id" item-text="pro_name" clearable
+                                        return-object v-model="item.cristal" @change="getCost()">
                                     </v-autocomplete>
                                 </td>
                                 <td>
                                     <v-autocomplete :items='perfiles' item-value="pro_id" item-text="pro_name"
-                                        v-model="item.perfil" @change="getCost()">
+                                        return-object v-model="item.perfil" @change="getCost()">
                                     </v-autocomplete>
-                                </td>
-                                <td>
-                                    <v-checkbox 
-                                        v-model="item.special" @change="getCost()">
-                                    </v-checkbox>
                                 </td>
                                 <td>
                                     <v-text-field v-model="item.quantity" min="0" type="number" @change="getCost()"
@@ -103,7 +98,7 @@
                         <v-col class="d-flex align-center" cols="2" offset="5">
                             <v-btn color="success" block @click="createProject()">Crear orden</v-btn>
                         </v-col>
-                        <v-col cols="3" class="text-right" offset="1">
+                        <v-col cols="3" align-self="auto" class="text-right" offset="1">
                             <span class="title" style="color: #666666;">
                                 COSTOS ADICIONALES:&nbsp;<br>
                                 SUBTOTAL:&nbsp;<br>
@@ -111,7 +106,7 @@
                                 TOTAL:&nbsp;
                             </span>
                         </v-col>
-                        <v-col cols="1">
+                        <v-col cols="1" align-self="auto">
                             <v-text-field v-model="extra" @change="getTotal()" single-line dense hide-details
                                 label="Ingrese costos">
                             </v-text-field>
@@ -128,6 +123,7 @@
 </template>
 
 <script>
+
 export default {
     name: 'Cotizar',
     data() {
@@ -138,10 +134,9 @@ export default {
                 customer: null,
                 address: null,
                 product: [{
-                    cristal: "",
+                    cristal: null,
                     perfil: "",
                     type: "",
-                    special: '',
                     quantity: 0,
                     width: 0,
                     height: 0,
@@ -161,7 +156,6 @@ export default {
                 { text: 'TIPO', width: 'auto', sortable: false },
                 { text: 'CRISTAL', width: 'auto', sortable: false },
                 { text: 'PERFIL', width: 'auto', sortable: false },
-                { text: 'ESPECIAL', width: '1', sortable: false},
                 { text: 'CANTIDAD', width: '1', sortable: false },
                 { text: 'ANCHO', width: '1', sortable: false },
                 { text: 'ALTURA', width: '1', sortable: false },
@@ -169,14 +163,18 @@ export default {
                 { text: 'COMENTARIO', width: '25%', sortable: false }
             ],
 
-            items: ["CORREDIZO", "FIJO"]
+            items: [
+                { text: 'Corrediza', value: 0 },
+                { text: 'Fija', value: 1 },
+                { text: 'Puerta económica', value: 2 },
+                { text: 'Puerta línea española', value: 3 }
+            ]
         }
     },
 
     methods: {
         async createProject() {
             const response = await this.axios.post('/api/cotizacion/nuevoProyecto', this.newProject)
-            console.log("🚀 ~ file: Cotizar.vue ~ line 179 ~ createProject ~ this.newProject", this.newProject)
             this.showAlert()
         },
 
@@ -191,18 +189,64 @@ export default {
         },
 
         getCost() {
-            var found
             for (let product of this.newProject.product) {
                 if (product.width != 0 && product.height != 0) {
                     product.cost = 0
-                    found = this.cristales.findIndex(item => item.pro_id === product.cristal)
-                    product.cost += Number(this.cristales[found].pro_cost) * Number(product.width) * Number(product.height)
-                    found = this.perfiles.findIndex(item => item.pro_id === product.perfil)
-                    product.cost += Number(this.perfiles[found].pro_cost)
+                    if (product.cristal != null) {
+                        product.cost += Number(product.cristal?.pro_cost) * Number(product.width) * Number(product.height)
+                    }
+                    product.cost += this.calculateAddons(product.type, Number(product.perfil?.pro_cost), Number(product.width), Number(product.height))
                     product.cost *= product.quantity
                 }
             }
             this.getTotal()
+        },
+
+        calculateAddons(type, cost, width, height) {
+            switch (type) {
+                /**
+                 * *Calculo para corrediza
+                 */
+                case 0:
+                    var jamba, mosquitero, riel, adaptador, cerco, traslape, zoclo, zoclito;
+                    jamba = mosquitero = cost * width + cost * 2 * height
+                    riel = adaptador = cost * width
+                    cerco = traslape = cost * 2 * height
+                    zoclo = zoclito = cost * width
+                    return jamba + mosquitero + riel + adaptador + cerco + traslape + zoclo + zoclito
+
+                case 1:
+                    /**
+                     * *Calculo para fija
+                     */
+                    var bolsa, escalonado, junquillo
+                    bolsa = cost * 2 * height
+                    escalonado = junquillo = cost * 2 * width
+                    return bolsa + escalonado + junquillo
+
+                case 2:
+                    /**
+                     * *Calculo para puerta económica
+                     */
+                    var batiente, cerco, zoclo
+                    batiente = cost * 2 * height + cost * width
+                    cerco = cost * 2 * height
+                    zoclo = cost * 2 * width
+                    return batiente + cerco + zoclo
+
+                case 3:
+                    /**
+                     * *Calculo para puerta línea española
+                     */
+                    var fijoTubular, hoja, zoclo
+                    fijoTubular = cost * 2 * height + cost * width
+                    hoja = cost * 2 * height
+                    zoclo = cost * 2 * width
+                    return fijoTubular + hoja + zoclo
+
+                default:
+                    break;
+            }
         },
 
         addRow() {
@@ -227,8 +271,8 @@ export default {
                 icon: 'success',
                 confirmButtonText: 'OK',
                 showLoaderOnConfirm: true
-            }).then((result)=>{
-                if(result.isConfirmed || result.isDismissed){
+            }).then((result) => {
+                if (result.isConfirmed || result.isDismissed) {
                     this.$router.go()
                 }
             })
@@ -254,7 +298,7 @@ export default {
 </script>
 
 <style>
-.v-input__slot{
+.v-input__slot {
     align-items: center;
     justify-content: center;
 }

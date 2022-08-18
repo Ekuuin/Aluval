@@ -1,5 +1,5 @@
 <template>
-    <vue-html2pdf :show-layout="false" :float-layout="true" :enable-download="true" :preview-modal="false"
+    <vue-html2pdf :show-layout="true" :float-layout="true" :enable-download="true" :preview-modal="false"
         :paginate-elements-by-height="1400" :manual-pagination="false"
         pdf-content-width="100%" ref="html2Pdf"
         :html-to-pdf-options="options">
@@ -55,8 +55,9 @@
                 <v-row v-for="(products, index) in productsInfo" :key="index"
                     style="border-style: solid; margin-top: 9px;">
                     <v-col cols="auto">
-                        <img v-if="products.dp_tipo.toUpperCase() == 'CORREDIZO'" src="@/assets/corrediza.jpg">
-                        <img v-else src="@/assets/fijo.png">
+                        <img v-if="products.dp_tipo === 0" src="@/assets/corrediza.jpg">
+                        <img v-else-if="products.dp_tipo === 1" src="@/assets/fijo.png">
+                        <img v-else src="@/assets/puerta.png" width="105px">
                     </v-col>
                     <v-col>
                         <span class="textS">MEDIDAS<br></span>
@@ -69,7 +70,8 @@
                         <span class="textS">COLOR: </span>
                         <span style="font-size: small;">{{ products['p2.pro_name'].toUpperCase() }}</span><br>
                         <span class="textS">CRISTAL: </span>
-                        <span style="font-size: small;">{{ products.pro_name.toUpperCase() }}</span>
+                        <span v-if="products.pro_name != null" style="font-size: small;">{{ products.pro_name.toUpperCase() }}</span>
+                        <span v-else style="font-size: small;">N/A</span>
                     </v-col>
                     <v-col cols="auto">
                         <span class="textS">CANTIDAD: </span><br>
