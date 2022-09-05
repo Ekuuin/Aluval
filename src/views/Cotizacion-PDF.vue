@@ -122,8 +122,7 @@
                 </v-container>
             </section>
 
-            <div class="html2pdf__page-break">
-            </div>
+   
 
             <section class="pdf-item">
                 <v-container fluid>
@@ -262,7 +261,7 @@ export default {
     data() {
         return {
             options: {
-                margin: [2, 2],
+                margin: [2.5, 2.5],
 
                 filename: 'Presupuesto-ID' + this.id + '.pdf',
 
