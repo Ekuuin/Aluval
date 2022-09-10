@@ -25,36 +25,43 @@ except:
 else:
     print("---------Conexion DB establecida---------")
 
-
-@app.route('/api/mensaje2')
-def mensajeBienvenida():
-    a = "asdad"
-    return jsonify("alaberga")
-
-
-@app.route('/api/mensaje')
-def mensaje():
-    return jsonify(mensaje="Nuevo mensaje desde un servidor Flask")
-
-
 # Rutas de inventario
 
 @app.route('/api/inventario/nuevoProducto', methods=["POST"])
 def nuevoProducto():
-    _post_data = request.get_json(silent=True)
-    _productName = _post_data['name']
-    _productIDCategory = _post_data['category']
-    _productBrand = _post_data['brand']
-    _productCost = _post_data['cost']
-    _productUnit = _post_data['units']
-    query = """INSERT INTO productos (pro_name, pro_category, pro_brand, pro_cost, pro_unit) VALUES (%s, %s, %s, %s, %s)"""
-    datos = (_productName, _productIDCategory,
-             _productBrand, _productCost, _productUnit)
+    _data = request.get_json(silent=True)
+    _productName = _data['name']
+    _productIDCategory = _data['category']
+    _productBrand = _data['brand']
+    _productCost = _data['cost']
+    _productUnit = _data['units']
+    _jambaC = _data['jambaC']
+    _mosquiteroC = _data['mosquiteroC']
+    _rielC = _data['rielC']
+    _adaptadorC = _data['adaptadorC']
+    _traslapeC = _data['traslapeC']
+    _zocloC = _data['zocloC']
+    _bolsaF = _data['bolsaF']
+    _escalonadoF = _data['escalonadoF']
+    _junquilloF = _data['junquilloF']
+    _marcoPE = _data['marcoPE']
+    _cercoPE = _data['cercoPE']
+    _zocloPE = _data['zocloPE']
+    _tubularPEsp = _data['tubularPEsp']
+    _hojaPEsp = _data['hojaPEsp']
+    _zocloPEsp = _data['zocloPEsp']
+    _junquilloPEsp = _data['junquilloPEsp']
+    query = """INSERT INTO productos (pro_name, pro_category, pro_brand, pro_cost, pro_unit, jambaC, mosquiteroC, rielC,
+            adaptadorC, traslapeC, zocloC, bolsaF, escalonadoF, junquilloF, marcoPE, cercoPE, zocloPE, tubularPEsp, hojaPEsp, zocloPEsp,
+            junquilloPEsp) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"""
+    datos = (_productName, _productIDCategory, _productBrand, _productCost, _productUnit,
+            _jambaC, _mosquiteroC, _rielC, _adaptadorC, _traslapeC, _zocloC, _bolsaF, _escalonadoF,
+            _junquilloF, _marcoPE, _cercoPE, _zocloPE, _tubularPEsp, _hojaPEsp, _zocloPEsp, _junquilloPEsp)
     conn = mysql.connect()
     cursor = conn.cursor()
     cursor.execute(query, datos)
     conn.commit()
-    return jsonify(msg="OK", product=_post_data)
+    return jsonify(msg="OK", product=_data)
 
 
 @app.route('/api/inventario/nuevaCategoria', methods=["POST"])
@@ -119,17 +126,38 @@ def borrarCategoria(id):
 
 @app.route('/api/inventario/actualizarProducto', methods=["POST"])
 def actualizarProducto():
-    data = request.get_json(silent=True)
-    _productId = data['pro_id']
-    _productName = data['pro_name']
-    _productCategory = data['pro_category']
-    _productBrand = data['pro_brand']
-    _productCost = data['pro_cost']
-    _productUnit = data['pro_unit']
+    _data = request.get_json(silent=True)
+    _productId = _data['pro_id']
+    _productName = _data['pro_name']
+    _productCategory = _data['pro_category']
+    _productBrand = _data['pro_brand']
+    _productCost = _data['pro_cost']
+    _productUnit = _data['pro_unit']
+    _jambaC = _data['jambaC']
+    _mosquiteroC = _data['mosquiteroC']
+    _rielC = _data['rielC']
+    _adaptadorC = _data['adaptadorC']
+    _traslapeC = _data['traslapeC']
+    _zocloC = _data['zocloC']
+    _bolsaF = _data['bolsaF']
+    _escalonadoF = _data['escalonadoF']
+    _junquilloF = _data['junquilloF']
+    _marcoPE = _data['marcoPE']
+    _cercoPE = _data['cercoPE']
+    _zocloPE = _data['zocloPE']
+    _tubularPEsp = _data['tubularPEsp']
+    _hojaPEsp = _data['hojaPEsp']
+    _zocloPEsp = _data['zocloPEsp']
+    _junquilloPEsp = _data['junquilloPEsp']
     data = (_productName, _productCategory, _productBrand,
-            _productCost, _productUnit, _productId)
+            _productCost, _productUnit, _jambaC, _mosquiteroC, _rielC, _adaptadorC,
+            _traslapeC, _zocloC, _bolsaF, _escalonadoF, _junquilloF, _marcoPE, 
+            _cercoPE, _zocloPE, _tubularPEsp, _hojaPEsp, _zocloPEsp, _junquilloPEsp, _productId)
 
-    query = "UPDATE productos SET pro_name = %s, pro_category = %s, pro_brand = %s, pro_cost = %s, pro_unit = %s WHERE pro_id = %s"
+    query = """UPDATE productos SET pro_name = %s, pro_category = %s, pro_brand = %s, pro_cost = %s, pro_unit = %s,
+            jambaC = %s, mosquiteroC = %s, rielC = %s, adaptadorC = %s, traslapeC = %s, zocloC = %s, bolsaF =%s,
+            escalonadoF = %s, junquilloF = %s, marcoPE = %s, cercoPE = %s, zocloPE = %s, tubularPEsp = %s, hojaPEsp =%s,
+            zocloPEsp = %s, junquilloPEsp = %s WHERE pro_id = %s"""
     conn = mysql.connect()
     cursor = conn.cursor()
     cursor.execute(query, data)
@@ -168,7 +196,7 @@ def obtenerProyectos():
 @app.route('/api/historial/obtenerDetalles', methods=["POST"])
 def obtenerDetalles():
     data = request.get_json(silent=True)
-    query = "SELECT * FROM detalles_pedido WHERE dp_proy_id = %s"
+    query = "SELECT dp_comentarios FROM detalles_pedido WHERE dp_proy_id = %s"
     conn = mysql.connect()
     cursor = conn.cursor()
     cursor.execute(query, data['id'])
@@ -243,7 +271,7 @@ def nuevoProyecto():
 
 @app.route('/api/cotizacion/obtenerCristales')
 def obtenerCristales():
-    query = "SELECT p.* FROM productos AS p INNER JOIN categoria AS c ON p.pro_category = c.cat_id AND c.cat_name = 'Cristales'"
+    query = "SELECT p.* FROM productos AS p INNER JOIN categoria AS c ON p.pro_category = c.cat_id AND (c.cat_name = 'Cristales' OR c.cat_name = 'Cristal' OR c.cat_name = 'Vidrio' OR c.cat_name = 'Vidrios')"
     conn = mysql.connect()
     cursor = conn.cursor()
     cursor.execute(query)
@@ -253,7 +281,7 @@ def obtenerCristales():
 
 @app.route('/api/cotizacion/obtenerPerfiles')
 def obtenerPerfiles():
-    query = "SELECT p.* FROM productos AS p INNER JOIN categoria AS c ON p.pro_category = c.cat_id AND c.cat_name = 'Perfiles'"
+    query = "SELECT p.* FROM productos AS p INNER JOIN categoria AS c ON p.pro_category = c.cat_id AND (c.cat_name = 'Perfiles' OR c.cat_name = 'Perfil')"
     conn = mysql.connect()
     cursor = conn.cursor()
     cursor.execute(query)

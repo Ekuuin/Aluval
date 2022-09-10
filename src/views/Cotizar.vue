@@ -51,12 +51,13 @@
                         <template v-slot:item="{ item }">
                             <tr>
                                 <td>
-                                    <v-autocomplete label="Tipo de trabajo" :items="items" v-model="item.type" @change="getCost()">
+                                    <v-autocomplete label="Tipo de trabajo" :items="items" v-model="item.type"
+                                        @change="getCost()">
                                     </v-autocomplete>
                                 </td>
                                 <td>
-                                    <v-autocomplete :items='cristales' item-value="pro_id" item-text="pro_name" clearable
-                                        return-object v-model="item.cristal" @change="getCost()">
+                                    <v-autocomplete :items='cristales' item-value="pro_id" item-text="pro_name"
+                                        clearable return-object v-model="item.cristal" @change="getCost()">
                                     </v-autocomplete>
                                 </td>
                                 <td>
@@ -65,20 +66,25 @@
                                     </v-autocomplete>
                                 </td>
                                 <td>
+                                    <v-checkbox v-show="item.type === 0" v-model="item.mosq" @change="getCost()">
+                                    </v-checkbox>
+                                </td>
+                                <td>
                                     <v-text-field v-model="item.quantity" min="0" type="number" @change="getCost()"
                                         @click="getCost()">
                                     </v-text-field>
                                 </td>
                                 <td>
-                                    <v-text-field name="Ancho" v-model="item.width" label="metros" @change="getCost()">
+                                    <v-text-field name="Ancho" v-model="item.width" label="metros" @change="getCost()"
+                                        @click="item.width = ''">
                                     </v-text-field>
                                 </td>
                                 <td>
                                     <v-text-field name="Altura" v-model="item.height" label="metros"
-                                        @change="getCost()"></v-text-field>
+                                        @click="item.height = ''" @change="getCost()"></v-text-field>
                                 </td>
                                 <td>
-                                    <v-text-field name="Cost" v-model="item.cost" readonly>
+                                    <v-text-field name="Cost" v-model="item.cost" @change="getTotal()">
                                     </v-text-field>
                                 </td>
                                 <td>
@@ -141,6 +147,7 @@ export default {
                     width: 0,
                     height: 0,
                     cost: 0,
+                    mosq: false,
                     comments: ""
                 }],
                 total: 0
@@ -156,6 +163,7 @@ export default {
                 { text: 'TIPO', width: 'auto', sortable: false },
                 { text: 'CRISTAL', width: 'auto', sortable: false },
                 { text: 'PERFIL', width: 'auto', sortable: false },
+                { text: 'MOSQ', width: '1', sortable: false },
                 { text: 'CANTIDAD', width: '1', sortable: false },
                 { text: 'ANCHO', width: '1', sortable: false },
                 { text: 'ALTURA', width: '1', sortable: false },
@@ -170,6 +178,11 @@ export default {
                 { text: 'Puerta línea española', value: 3 }
             ]
         }
+    },
+
+    created() {
+        this.getCristales()
+        this.getPerfiles()
     },
 
     methods: {
@@ -195,24 +208,29 @@ export default {
                     if (product.cristal != null) {
                         product.cost += Number(product.cristal?.pro_cost) * Number(product.width) * Number(product.height)
                     }
-                    product.cost += this.calculateAddons(product.type, Number(product.perfil?.pro_cost), Number(product.width), Number(product.height))
+                    product.cost += this.calculateAddons(product.type, product.perfil, Number(product.width), Number(product.height), product.mosq)
                     product.cost *= product.quantity
                 }
             }
             this.getTotal()
         },
 
-        calculateAddons(type, cost, width, height) {
+        calculateAddons(type, perfil, width, height, mosq) {
             switch (type) {
                 /**
                  * *Calculo para corrediza
                  */
                 case 0:
                     var jamba, mosquitero, riel, adaptador, cerco, traslape, zoclo, zoclito;
-                    jamba = mosquitero = cost * width + cost * 2 * height
-                    riel = adaptador = cost * width
-                    cerco = traslape = cost * 2 * height
-                    zoclo = zoclito = cost * width
+                    jamba = perfil.jambaC * (width + 2 * height)
+                    mosquitero = perfil.mosquiteroC * (width + 2 * height)
+                    if (!mosq) {
+                        mosquitero = 0
+                    }
+                    riel = perfil.rielC * width
+                    adaptador = perfil.adaptadorC * width
+                    cerco = traslape = perfil.traslapeC * 2 * height
+                    zoclo = zoclito = perfil.zocloC * width
                     return jamba + mosquitero + riel + adaptador + cerco + traslape + zoclo + zoclito
 
                 case 1:
@@ -220,29 +238,31 @@ export default {
                      * *Calculo para fija
                      */
                     var bolsa, escalonado, junquillo
-                    bolsa = cost * 2 * height
-                    escalonado = junquillo = cost * 2 * width
+                    bolsa = perfil.bolsaF * 2 * height
+                    escalonado = perfil.escalonadoF * 2 * width
+                    junquillo = perfil.junquilloF * 2 * width
                     return bolsa + escalonado + junquillo
 
                 case 2:
                     /**
                      * *Calculo para puerta económica
                      */
-                    var batiente, cerco, zoclo
-                    batiente = cost * 2 * height + cost * width
-                    cerco = cost * 2 * height
-                    zoclo = cost * 2 * width
-                    return batiente + cerco + zoclo
+                    var marco, cerco, zoclo
+                    marco = perfil.marcoPE * (2 * height + width)
+                    cerco = perfil.cercoPE * 2 * height
+                    zoclo = perfil.zocloPE * 2 * width
+                    return marco + cerco + zoclo
 
                 case 3:
                     /**
                      * *Calculo para puerta línea española
                      */
-                    var fijoTubular, hoja, zoclo
-                    fijoTubular = cost * 2 * height + cost * width
-                    hoja = cost * 2 * height
-                    zoclo = cost * 2 * width
-                    return fijoTubular + hoja + zoclo
+                    var fijoTubular, hoja, zoclo, junquillo
+                    fijoTubular = perfil.tubularPEsp * (2 * height + width)
+                    hoja = perfil.hojaPEsp * 2 * height
+                    zoclo = perfil.zocloPEsp * 2 * width
+                    junquillo = perfil.junquilloPEsp * 2 * width
+                    return fijoTubular + hoja + zoclo + junquillo
 
                 default:
                     break;
@@ -284,15 +304,11 @@ export default {
                 this.subtotal += Number(prod.cost)
             }
             this.subtotal += Number(this.extra)
-            this.iva = this.subtotal * 0.16
+            this.subtotal = Number(this.subtotal.toFixed(2))
+            this.iva = Number((this.subtotal * 0.16).toFixed(2))
             this.newProject.total = this.iva + this.subtotal
         }
-    },
-
-    created() {
-        this.getCristales()
-        this.getPerfiles()
-    },
+    }
 }
 
 </script>

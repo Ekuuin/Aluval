@@ -22,7 +22,7 @@
                             </span>
                         </v-col>
                         <v-spacer></v-spacer>
-                        <v-col cols="auto">
+                        <v-col cols="auto" style="text-align: right !important;">
                             <span class="textS">
                                 {{ this.projectInfo[0]?.proy_fecha }} <br><br>
                                 DIVISA: MXN
@@ -305,6 +305,7 @@ export default {
             }
             const apiData = await this.axios.post('/api/pdf/obtenerProductos', body)
             this.productsInfo = apiData.data
+            await new Promise((r) => setTimeout(r, 100));
             this.generateReport()
         },
 
