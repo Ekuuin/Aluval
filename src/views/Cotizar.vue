@@ -102,7 +102,8 @@
                 <v-container fluid>
                     <v-row no-gutters>
                         <v-col class="d-flex align-center" cols="2" offset="5">
-                            <v-btn color="success" :disabled="submitting" block @click="createProject()">{{this.btnSubmitText}}</v-btn>
+                            <v-btn color="success" :disabled="submitting" block @click="createProject()">
+                                {{this.btnSubmitText}}</v-btn>
                         </v-col>
                         <v-col cols="3" align-self="auto" class="text-right" offset="1">
                             <span class="title" style="color: #666666;">
@@ -191,8 +192,9 @@ export default {
         async createProject() {
             this.submitting = true
             this.btnSubmitText = 'Creando...'
-            const response = await this.axios.post('/api/cotizacion/nuevoProyecto', this.newProject)
-            this.showAlert()
+            await this.axios.post('/api/cotizacion/nuevoProyecto', this.newProject)
+                .then(this.showAlertSuccess)
+                .catch(this.showAlertError)
         },
 
         async getCristales() {
@@ -288,7 +290,23 @@ export default {
             })
         },
 
-        showAlert(value) {
+        showAlertError() {
+            // Use sweetalert2
+            this.$swal({
+                title: 'El proyecto no pudo ser creado',
+                text: 'Verifica la información',
+                icon: 'error',
+                confirmButtonText: 'OK',
+                showLoaderOnConfirm: true
+            }).then((result) => {
+                if (result.isConfirmed || result.isDismissed) {
+                    this.btnSubmitText = 'Crear Proyecto'
+                    this.submitting = false
+                }
+            })
+        },
+
+        showAlertSuccess() {
             // Use sweetalert2
             this.$swal({
                 title: 'Proyecto generado correctamente!',
