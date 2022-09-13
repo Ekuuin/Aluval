@@ -102,7 +102,7 @@
                 <v-container fluid>
                     <v-row no-gutters>
                         <v-col class="d-flex align-center" cols="2" offset="5">
-                            <v-btn color="success" block @click="createProject()">Crear orden</v-btn>
+                            <v-btn color="success" :disabled="submitting" block @click="createProject()">{{this.btnSubmitText}}</v-btn>
                         </v-col>
                         <v-col cols="3" align-self="auto" class="text-right" offset="1">
                             <span class="title" style="color: #666666;">
@@ -134,6 +134,8 @@ export default {
     name: 'Cotizar',
     data() {
         return {
+            btnSubmitText: 'Crear proyecto',
+            submitting: false,
             page: 1,
             pageCount: 0,
             newProject: {
@@ -187,6 +189,8 @@ export default {
 
     methods: {
         async createProject() {
+            this.submitting = true
+            this.btnSubmitText = 'Creando...'
             const response = await this.axios.post('/api/cotizacion/nuevoProyecto', this.newProject)
             this.showAlert()
         },
@@ -293,6 +297,8 @@ export default {
                 showLoaderOnConfirm: true
             }).then((result) => {
                 if (result.isConfirmed || result.isDismissed) {
+                    this.btnSubmitText = 'Crear Proyecto'
+                    this.submitting = false
                     this.$router.go()
                 }
             })

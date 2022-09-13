@@ -1,5 +1,5 @@
 <!--
-    ! Pendiente modificar dialog Actualizar
+    * Everything OK!!!
 -->
 
 <template>
@@ -494,7 +494,6 @@ export default {
                  * * Se envía la petición para agregar el nuevo producto.
                  */
                 await this.axios.post('/api/inventario/nuevoProducto', producto)
-                console.log("🚀 ~ file: Inventario.vue ~ line 478 ~ addNewProduct ~ producto", producto)
             }
             this.closeDialog()
             this.getProducts()
