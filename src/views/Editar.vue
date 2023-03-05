@@ -4,7 +4,7 @@
             <v-toolbar flat color="primary" dark>
                 <v-spacer></v-spacer>
                 <v-toolbar-title>
-                    COTIZACIÓN
+                    EDITAR PROYECTO
                 </v-toolbar-title>
                 <v-spacer></v-spacer>
             </v-toolbar>
@@ -44,7 +44,7 @@
                                     Información de los productos
                                 </v-toolbar-title>
                                 <v-spacer></v-spacer>
-                                <v-btn color="success" @click="addRow()"><font-awesome-icon icon="fa-solid fa-plus" /></v-btn>
+                                <v-btn color="success" @click="addRow()">+</v-btn>
                             </v-toolbar>
                         </template>
 
@@ -66,8 +66,7 @@
                                     </v-autocomplete>
                                 </td>
                                 <td>
-                                    <v-checkbox v-show="item.type === 0" v-model="item.mosq" false-value="0" true-value="1"
-                                        @change="getCost()">
+                                    <v-checkbox v-show="item.type === 0" v-model="item.mosq" @change="getCost()">
                                     </v-checkbox>
                                 </td>
                                 <td>
@@ -113,20 +112,21 @@
                 <v-container fluid>
                     <v-row no-gutters>
                         <v-col class="d-flex align-center" cols="2" offset="5">
-                            <v-btn color="success" :loading="submitting" :disabled="submitting" block @click="createProject()">
+                            <v-btn color="success" :loading="submitting" :disabled="submitting" block
+                                @click="actualizarInfo(), submitting = true">
                                 {{ this.btnSubmitText }}</v-btn>
                         </v-col>
-                        <v-col cols="3" class="text-right d-flex flex-column" offset="1">
+                        <v-col cols="3" align-self="auto" class="text-right" offset="1">
                             <span class="title" style="color: #666666;">
                                 SUBTOTAL:&nbsp;<br>
                                 I.V.A:&nbsp;<br>
                                 TOTAL:&nbsp;
                             </span>
                         </v-col>
-                        <v-col cols="1" class="d-flex flex-column">
+                        <v-col cols="1" align-self="auto">
                             <v-text-field v-model="subtotal" readonly single-line dense hide-details></v-text-field>
                             <v-text-field v-model="iva" readonly single-line dense hide-details></v-text-field>
-                            <v-text-field v-model="newProject.total" single-line dense hide-details>
+                            <v-text-field v-model="newProject.total" readonly single-line dense hide-details>
                             </v-text-field>
                         </v-col>
                     </v-row>
@@ -142,25 +142,14 @@ export default {
     name: 'Cotizar',
     data() {
         return {
-            btnSubmitText: 'Crear proyecto',
+            btnSubmitText: 'Guardar proyecto',
             submitting: false,
             page: 1,
             pageCount: 0,
             newProject: {
                 customer: null,
                 address: null,
-                product: [{
-                    cristal: null,
-                    perfil: "",
-                    type: "",
-                    quantity: 0,
-                    width: 0,
-                    height: 0,
-                    cost: 0,
-                    mosq: 0,
-                    comments: "",
-                    extra: 0
-                }],
+                product: [],
                 total: 0
             },
 
@@ -181,7 +170,6 @@ export default {
                 { text: 'COSTO', width: '1', sortable: false },
                 { text: 'COMENTARIO', width: '25%', sortable: false },
                 { text: '', width: '1', sortable: false }
-
             ],
 
             items: [
@@ -189,26 +177,30 @@ export default {
                 { text: 'Fija', value: 1 },
                 { text: 'Puerta económica', value: 2 },
                 { text: 'Puerta línea española', value: 3 }
-            ]
+            ],
+
+            props: {
+                id: {}
+            }
         }
     },
 
     created() {
         this.getCristales()
         this.getPerfiles()
+        this.getInfoCliente()
+    },
+
+    mounted() {
+
+    },
+
+    props: {
+        id: {},
     },
 
     methods: {
-        async createProject() {
-            this.submitting = true
-            this.btnSubmitText = 'Creando...'
-            try {
-                await this.axios.post('/api/cotizacion/nuevoProyecto', this.newProject)
-                this.showAlertSuccess()
-            } catch (error) {
-                this.showAlertError()
-            }
-        },
+
 
         async getCristales() {
             const apiData = await this.axios.get('/api/cotizacion/obtenerCristales')
@@ -218,6 +210,50 @@ export default {
         async getPerfiles() {
             const apiData = await this.axios.get('/api/cotizacion/obtenerPerfiles')
             this.perfiles = apiData.data
+        },
+
+        async getInfoCliente() {
+            const apiData = await this.axios.get('/api/editar/obtenerInfoCliente/' + this.id)
+            this.newProject.customer = apiData.data[0].proy_cliente
+            this.newProject.address = apiData.data[0].proy_domicilio
+            this.newProject.total = apiData.data[0].proy_total
+            await this.getInfoProductos()
+        },
+
+        async getInfoProductos() {
+            const apiData = await this.axios.get('/api/editar/obtenerInfoProductos/' + this.id)
+            apiData.data.forEach((e, i) => {
+                this.addRow()
+                this.newProject.product[i].id = e.dp_id
+                this.newProject.product[i].cristal = this.cristales.find(el => el.pro_id == e.dp_prod_id)
+                this.newProject.product[i].perfil = this.perfiles.find(el => el.pro_id == e.dp_perfil)
+                this.newProject.product[i].type = e.dp_tipo
+                this.newProject.product[i].quantity = e.dp_cantidad
+                this.newProject.product[i].width = e.dp_ancho
+                this.newProject.product[i].height = e.dp_altura
+                this.newProject.product[i].cost = e.dp_costo
+                this.newProject.product[i].mosq = e.dp_mosq
+                this.newProject.product[i].comments = e.dp_comentarios
+                this.newProject.product[i].extra = e.dp_extra
+            });
+            this.getCost()
+        },
+
+        async actualizarInfo() {
+            const body = {
+                id: this.id,
+                name: this.newProject.customer,
+                addr: this.newProject.address,
+                total: this.newProject.total,
+                product: this.newProject.product
+            }
+            try {
+                this.axios.post('/api/editar/actualizarInfo', body)
+                this.showAlertSuccess()
+            } catch (error) {
+                this.showAlertError()
+            }
+
         },
 
         getCost() {
@@ -241,15 +277,15 @@ export default {
                  */
                 case 0:
                     var jamba, mosquitero, riel, adaptador, cerco, traslape, zoclo, zoclito;
-                    jamba = perfil.jambaC * (width + 2 * height)
-                    mosquitero = perfil.mosquiteroC * (width + 2 * height)
+                    jamba = perfil?.jambaC * (width + 2 * height)
+                    mosquitero = perfil?.mosquiteroC * (width + 2 * height)
                     if (!mosq) {
                         mosquitero = 0
                     }
-                    riel = perfil.rielC * width
-                    adaptador = perfil.adaptadorC * width
-                    cerco = traslape = perfil.traslapeC * 2 * height
-                    zoclo = zoclito = perfil.zocloC * width
+                    riel = perfil?.rielC * width
+                    adaptador = perfil?.adaptadorC * width
+                    cerco = traslape = perfil?.traslapeC * 2 * height
+                    zoclo = zoclito = perfil?.zocloC * width
                     return jamba + mosquitero + riel + adaptador + cerco + traslape + zoclo + zoclito
 
                 case 1:
@@ -257,9 +293,9 @@ export default {
                      * *Calculo para fija
                      */
                     var bolsa, escalonado, junquillo
-                    bolsa = perfil.bolsaF * 2 * height
-                    escalonado = perfil.escalonadoF * 2 * width
-                    junquillo = perfil.junquilloF * 2 * width
+                    bolsa = perfil?.bolsaF * 2 * height
+                    escalonado = perfil?.escalonadoF * 2 * width
+                    junquillo = perfil?.junquilloF * 2 * width
                     return bolsa + escalonado + junquillo
 
                 case 2:
@@ -267,9 +303,9 @@ export default {
                      * *Calculo para puerta económica
                      */
                     var marco, cerco, zoclo
-                    marco = perfil.marcoPE * (2 * height + width)
-                    cerco = perfil.cercoPE * 2 * height
-                    zoclo = perfil.zocloPE * 2 * width
+                    marco = perfil?.marcoPE * (2 * height + width)
+                    cerco = perfil?.cercoPE * 2 * height
+                    zoclo = perfil?.zocloPE * 2 * width
                     return marco + cerco + zoclo
 
                 case 3:
@@ -277,10 +313,10 @@ export default {
                      * *Calculo para puerta línea española
                      */
                     var fijoTubular, hoja, zoclo, junquillo
-                    fijoTubular = perfil.tubularPEsp * (2 * height + width)
-                    hoja = perfil.hojaPEsp * 2 * height
-                    zoclo = perfil.zocloPEsp * 2 * width
-                    junquillo = perfil.junquilloPEsp * 2 * width
+                    fijoTubular = perfil?.tubularPEsp * (2 * height + width)
+                    hoja = perfil?.hojaPEsp * 2 * height
+                    zoclo = perfil?.zocloPEsp * 2 * width
+                    junquillo = perfil?.junquilloPEsp * 2 * width
                     return fijoTubular + hoja + zoclo + junquillo
 
                 default:
@@ -290,6 +326,7 @@ export default {
 
         addRow() {
             this.newProject.product.push({
+                id: null,
                 cristal: null,
                 perfil: "",
                 type: "",
@@ -311,7 +348,7 @@ export default {
         showAlertError() {
             // Use sweetalert2
             this.$swal({
-                title: 'El proyecto no pudo ser creado',
+                title: 'El proyecto no pudo ser guardado.',
                 text: 'Verifica la información',
                 icon: 'error',
                 confirmButtonText: 'OK',
@@ -319,7 +356,7 @@ export default {
                 showLoaderOnConfirm: true
             }).then((result) => {
                 if (result.isConfirmed || result.isDismissed) {
-                    this.btnSubmitText = 'Crear proyecto'
+                    this.btnSubmitText = 'Guardar proyecto'
                     this.submitting = false
                 }
             })
@@ -328,16 +365,16 @@ export default {
         showAlertSuccess() {
             // Use sweetalert2
             this.$swal({
-                title: 'Proyecto generado correctamente!',
+                title: 'Se ha guardado la información.',
                 icon: 'success',
                 confirmButtonText: 'OK',
                 confirmButtonColor: '#4caf50',
                 showLoaderOnConfirm: true
             }).then((result) => {
                 if (result.isConfirmed || result.isDismissed) {
-                    this.btnSubmitText = 'Crear proyecto'
+                    this.btnSubmitText = 'Guardar proyecto'
                     this.submitting = false
-                    this.$router.go()
+                    this.$router.push('/Historial')
                 }
             })
         },
@@ -350,8 +387,6 @@ export default {
             this.subtotal = Number(this.subtotal.toFixed(2))
             this.iva = Number((this.subtotal * 0.16).toFixed(2))
             this.newProject.total = Number(this.iva + this.subtotal).toFixed(2)
-            console.log("🚀 ~ file: Cotizar.vue:336 ~ getTotal ~ this.newProject.product:", this.newProject.product)
-
         }
     }
 }
@@ -362,4 +397,5 @@ export default {
 .v-input__slot {
     align-items: center;
     justify-content: center;
-}</style>
+}
+</style>

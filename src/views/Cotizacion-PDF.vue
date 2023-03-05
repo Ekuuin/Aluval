@@ -1,6 +1,6 @@
 <template>
     <vue-html2pdf :show-layout="false" :float-layout="true" :enable-download="true" :preview-modal="false"
-        :paginate-elements-by-height="1400" :manual-pagination="false" pdf-content-width="100%" ref="html2Pdf"
+        :paginate-elements-by-height="1000" :manual-pagination="false" pdf-content-width="100%" ref="html2Pdf"
         :html-to-pdf-options="options">
         <section slot="pdf-content">
             <!-- PDF Content Here -->
@@ -59,44 +59,46 @@
                 </v-container>
             </section>
 
+            <section class="pdf-item" v-for="(products, index) in productsInfo" :key="index">
+                <v-row style="border-style: solid; border-width: 2px; margin: 0px auto -2px; height: 220px;">
+                    <v-col cols="3" style="justify-content: center; display: flex; align-self: center;">
+                        <img v-if="products.dp_tipo == 0" src="@/assets/corrediza.jpg">
+                        <img v-else-if="products.dp_tipo == 1" src="@/assets/fijo.png">
+                        <img v-else src="@/assets/puerta.png" width="105px">
+                    </v-col>
+                    <v-col cols="7">
+                        <span class="textS">MEDIDAS<br></span>
+                        <span class="subText">ANCHO(H): {{ products.dp_ancho }}m</span>
+                        <span class="subText">&nbsp;&nbsp;&nbsp; ALTO(V): {{ products.dp_altura }}m</span><br><br>
+                        <span class="textS">PERFIL: </span>
+                        <span class="subText">{{ products['p2.pro_name'].toUpperCase() }}</span><br>
+                        <span class="textS">CRISTAL: </span>
+                        <span v-if="products.pro_name != null" style="font-size: small;">{{
+                                products.pro_name.toUpperCase()
+                        }}</span>
+                        <span v-else style="font-size: small;">N/A</span><br><br>
+                        <span class="textS">DESCRIPCIÓN</span><br>
+                        <pre class="subText" style="white-space: pre-wrap;">{{ products.dp_comentarios }}</pre>
+                    </v-col>
+                    <v-col cols="2">
+                        <span class="textS">CANTIDAD: </span><br>
+                        <span style="font-size: small;">{{ products.dp_cantidad }}</span><br>
+                        <span class="textS">COSTO: </span><br>
+                        <span style="font-size: small;">${{ ((Number(products.dp_costo) - Number(products.dp_extra)) /
+                                products.dp_cantidad).toFixed(2)
+                        }}</span><br>
+                        <span class="textS">ADICIONALES</span><br>
+                        <span style="font-size: small">${{ products.dp_extra }}</span>
+                        <br>
+                        <span class="textS">TOTAL:</span><br>
+                        <span style="font-size: small;">${{ (Number(products.dp_costo)).toFixed(2) }}</span>
+                    </v-col>
+                </v-row>
+            </section>
+
             <section class="pdf-item">
+                <br><br>
                 <v-container fluid>
-                    <v-row v-for="(products, index) in productsInfo" :key="index"
-                        style="border-style: solid; margin-top: 9px;">
-                        <v-col cols="3">
-                            <img v-if="products.dp_tipo == 0" src="@/assets/corrediza.jpg">
-                            <img v-else-if="products.dp_tipo == 1" src="@/assets/fijo.png">
-                            <img v-else src="@/assets/puerta.png" width="105px">
-                        </v-col>
-                        <v-col>
-                            <span class="textS">MEDIDAS<br></span>
-                            <span class="textS">ANCHO(H): </span>
-                            <span style="font-size: small;">{{ products.dp_ancho }}m</span>
-                            <span class="textS">&nbsp;&nbsp;&nbsp; ALTO(V): </span>
-                            <span style="font-size: small;">{{ products.dp_altura }}m</span><br><br>
-                            <span class="textS">DESCRIPCIÓN</span><br>
-                            <span style="font-size: small;">{{ products.dp_comentarios.toUpperCase() }}</span><br><br>
-                            <span class="textS">COLOR: </span>
-                            <span style="font-size: small;">{{ products['p2.pro_name'].toUpperCase() }}</span><br>
-                            <span class="textS">CRISTAL: </span>
-                            <span v-if="products.pro_name != null" style="font-size: small;">{{
-                                    products.pro_name.toUpperCase()
-                            }}</span>
-                            <span v-else style="font-size: small;">N/A</span>
-                        </v-col>
-                        <v-col cols="auto">
-                            <span class="textS">CANTIDAD: </span><br>
-                            <span style="font-size: small;">{{ products.dp_cantidad }}</span><br><br>
-                            <span class="textS">COSTO: </span><br>
-                            <span style="font-size: small;">${{ (Number(products.dp_costo) /
-                                    products.dp_cantidad).toFixed(2)
-                            }}</span><br><br>
-                            <span class="textS">TOTAL:</span><br>
-                            <span style="font-size: small;">${{ products.dp_costo }}</span>
-                        </v-col>
-                    </v-row>
-                    <br>
-                    <br>
                     <v-divider></v-divider>
                     <v-divider></v-divider>
                     <v-row style="margin-left: 10px; margin-right: 10px; justify-content: flex-end !important;">
@@ -122,12 +124,10 @@
                 </v-container>
             </section>
 
-   
-
             <section class="pdf-item">
                 <v-container fluid>
                     <v-row>
-                        <v-col style="line-height: 90%; text-align: justify;">
+                        <v-col style="line-height: 92%; text-align: justify;">
                             <span class="textXS">
                                 CLÁUSULAS DEL PRESUPUESTO-CONTRATO <br>
 
@@ -242,7 +242,6 @@
                             </span>
                             <span class="textS">
                                 ALUVAL S.A. de C.V. <br>
-                                raul.jvm@gmail.com
                             </span>
                         </v-col>
                     </v-row>
@@ -261,19 +260,19 @@ export default {
     data() {
         return {
             options: {
-                margin: [2.5, 2.5],
+                margin: [1.5, 1.5],
 
                 filename: 'Presupuesto-ID' + this.id + '.pdf',
 
                 image: {
                     type: 'jpg',
-                    quality: 1
+                    quality: 2
                 },
 
                 enableLinks: false,
 
                 html2canvas: {
-                    scale: 3,
+                    scale: 1.3,
                 },
 
                 jsPDF: {
@@ -291,22 +290,14 @@ export default {
     methods: {
 
         async getProject() {
-            const body = {
-                id: this.id
-            }
-            const apiData = await this.axios.post('/api/pdf/obtenerProyecto', body)
+            const apiData = await this.axios.get('/api/pdf/obtenerProyecto/' + this.id)
             this.projectInfo = apiData.data
 
         },
 
         async getProducts() {
-            const body = {
-                id: this.id
-            }
-            const apiData = await this.axios.post('/api/pdf/obtenerProductos', body)
+            const apiData = await this.axios.get('/api/pdf/obtenerProductos/' + this.id)
             this.productsInfo = apiData.data
-            await new Promise((r) => setTimeout(r, 100));
-            this.generateReport()
         },
 
         /*
@@ -324,8 +315,7 @@ export default {
     },
 
     created() {
-        this.getProject()
-        this.getProducts()
+        Promise.all([this.getProducts(), this.getProject()]).then(() => this.generateReport())
     },
 
     props: {
@@ -339,6 +329,13 @@ span {
     font-family: 'Roboto', sans-serif;
 }
 
+pre {
+    font-family: 'Roboto', sans-serif;
+}
+
+.subText {
+    font-size: 12px;
+}
 .textS {
     font-size: small;
     font-weight: 600;

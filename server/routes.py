@@ -25,6 +25,9 @@ except:
 else:
     print("---------Conexion DB establecida---------")
 
+def nl2br(s):
+    return '<br>\n'.join(s.split('\n'))
+
 # Rutas de inventario
 
 @app.route('/api/inventario/nuevoProducto', methods=["POST"])
@@ -196,7 +199,7 @@ def obtenerProyectos():
 @app.route('/api/historial/obtenerDetalles', methods=["POST"])
 def obtenerDetalles():
     data = request.get_json(silent=True)
-    query = "SELECT dp_comentarios FROM detalles_pedido WHERE dp_proy_id = %s"
+    query = "SELECT dp_comentarios, dp_tipo, dp_ancho, dp_altura FROM detalles_pedido WHERE dp_proy_id = %s"
     conn = mysql.connect()
     cursor = conn.cursor()
     cursor.execute(query, data['id'])
@@ -214,22 +217,88 @@ def actualizarEstado():
     conn.commit()
     return jsonify(f"Project ID-{data['id']} updated successfully")
 
-
-# Rutas de Inicio
-
-@app.route('/api/inicio/obtenerProyectosActivos')
-def obtenerProyectosActivos():
-    query = "SELECT * FROM proyectos WHERE proy_estado = 'ACTIVO'"
+@app.route('/api/historial/borrarProyecto', methods=["POST"])
+def borrarProyecto():
+    data = request.get_json(silent=True)
+    query = 'DELETE FROM proyectos WHERE proy_id = %s'
     conn = mysql.connect()
     cursor = conn.cursor()
-    cursor.execute(query)
+    cursor.execute(query, data["id"])
+    conn.commit()
+    return jsonify(f"Project ID-{data['id']} deleted successfully")
+
+
+# Rutas de Editar
+
+@app.route('/api/editar/obtenerInfoCliente/<int:id>')
+def obtenerInfoCliente(id):
+    query = 'SELECT * FROM proyectos WHERE proy_id = %s'
+    conn = mysql.connect()
+    cursor = conn.cursor()
+    cursor.execute(query, id)
     data = cursor.fetchall()
-    for project in data:
-        project['proy_fecha'] = project['proy_fecha'].strftime("%d/%B/%Y")
-        project['proy_total'] = locale.currency(
-            project['proy_total'], grouping=True)
     return jsonify(data)
 
+@app.route('/api/editar/obtenerInfoProductos/<int:id>')
+def obtenerInfoProductos(id):
+    query = 'SELECT * FROM detalles_pedido WHERE dp_proy_id = %s'
+    conn = mysql.connect()
+    cursor = conn.cursor()
+    cursor.execute(query, id)
+    data = cursor.fetchall()
+    return jsonify(data)
+
+@app.route('/api/editar/actualizarInfo', methods=['POST'])
+def actualizarInfo():
+    data = request.get_json(silent=True)
+    query = 'UPDATE proyectos SET proy_cliente = %s, proy_domicilio = %s, proy_total = %s WHERE proy_id = %s'
+    conn = mysql.connect()
+    cursor = conn.cursor()
+    cursor.execute(query, (data['name'], data['addr'], data['total'], data['id']))
+    conn.commit()
+
+    proyID = data['id']
+    for data in data['product']:
+        if(data['id'] == None):
+            _prodId = None
+            if ( data["cristal"] != None):
+                _prodId = data['cristal']['pro_id']
+            _type = data["type"]
+            _perfil = data['perfil']['pro_id']
+            _quantity = data["quantity"]
+            _width = data["width"]
+            _height = data["height"]
+            _comments = data["comments"]
+            _comments = _comments.replace("\n", "<br>")
+            _cost = data["cost"]
+            _extra = data["extra"]
+            _mosq = data['mosq']
+            query = """INSERT INTO detalles_pedido(dp_prod_id, dp_proy_id, dp_costo, dp_tipo, dp_perfil, dp_cantidad, dp_ancho, dp_altura, dp_comentarios, dp_extra, dp_mosq)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"""
+            cursor.execute(query, (_prodId, proyID, _cost, _type,
+                           _perfil, _quantity, _width, _height, _comments, _extra, _mosq))
+        else:
+            _dpID = data['id']
+            _prodId = None
+            if ( data["cristal"] != None):
+                _prodId = data['cristal']['pro_id']
+            _type = data["type"]
+            _perfil = data['perfil']['pro_id']
+            _quantity = data["quantity"]
+            _width = data["width"]
+            _height = data["height"]
+            _comments = data["comments"]
+            _comments = _comments.replace("\n", "<br>")
+            _cost = data["cost"]
+            _extra = data["extra"]
+            _mosq = data['mosq']
+            query = """UPDATE detalles_pedido SET dp_prod_id = %s, dp_proy_id = %s, dp_costo = %s, dp_tipo = %s, dp_perfil = %s, 
+                    dp_cantidad = %s, dp_ancho = %s, dp_altura = %s, dp_comentarios = %s, dp_extra = %s, dp_mosq = %s WHERE dp_id = %s"""
+            cursor.execute(query, (_prodId, proyID, _cost, _type,
+                    _perfil, _quantity, _width, _height, _comments, _extra, _mosq, _dpID))
+
+        conn.commit()
+    return jsonify("OK")
 
 # Rutas de Cotización
 
@@ -251,7 +320,7 @@ def nuevoProyecto():
     id = cursor.fetchall()
 
     for data in data['product']:
-        _prodId = data['cristal']
+        _prodId = None
         if ( data["cristal"] != None):
             _prodId = data['cristal']['pro_id']
         _type = data["type"]
@@ -260,11 +329,14 @@ def nuevoProyecto():
         _width = data["width"]
         _height = data["height"]
         _comments = data["comments"]
+        _comments = _comments.replace("\n", "<br>")
         _cost = data["cost"]
-        query = """INSERT INTO detalles_pedido(dp_prod_id, dp_proy_id, dp_costo, dp_tipo, dp_perfil, dp_cantidad, dp_ancho, dp_altura, dp_comentarios)
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)"""
+        _extra = data["extra"]
+        _mosq = data['mosq']
+        query = """INSERT INTO detalles_pedido(dp_prod_id, dp_proy_id, dp_costo, dp_tipo, dp_perfil, dp_cantidad, dp_ancho, dp_altura, dp_comentarios, dp_extra, dp_mosq)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"""
         cursor.execute(query, (_prodId, id[0]['id'], _cost, _type,
-                       _perfil, _quantity, _width, _height, _comments))
+                       _perfil, _quantity, _width, _height, _comments, _extra, _mosq))
         conn.commit()
     return jsonify("OK")
 
@@ -291,23 +363,21 @@ def obtenerPerfiles():
 
 # Rutas PDF
 
-@app.route('/api/pdf/obtenerProyecto', methods=['POST'])
-def obtenerProyecto():
-    data = request.get_json(silent=True)
+@app.route('/api/pdf/obtenerProyecto/<int:id>')
+def obtenerProyecto(id):
     query = "SELECT * FROM proyectos WHERE proy_id = %s"
     conn = mysql.connect()
     cursor = conn.cursor()
-    cursor.execute(query, data['id'])
+    cursor.execute(query, id)
     project = cursor.fetchall()
     project[0]['proy_fecha'] = project[0]['proy_fecha'].strftime("%d/%m/%Y")
     return jsonify(project)
 
-@app.route('/api/pdf/obtenerProductos', methods=['POST'])
-def obtenerProductosPDF():
-    data = request.get_json(silent=True)
+@app.route('/api/pdf/obtenerProductos/<int:id>')
+def obtenerProductosPDF(id):
     query = "SELECT * FROM detalles_pedido AS dp LEFT JOIN productos AS p ON dp.dp_prod_id = p.pro_id INNER JOIN productos AS p2 ON dp.dp_perfil = p2.pro_id WHERE dp.dp_proy_id = %s;"
     conn = mysql.connect()
     cursor = conn.cursor()
-    cursor.execute(query, data['id'])
+    cursor.execute(query, id)
     products = cursor.fetchall()
     return jsonify(products)

@@ -2,23 +2,13 @@
   <v-app>
     <v-app-bar app color="primary" dark height="100px">
       <div class="d-flex align-center">
-        <v-img v-if="!mobile" alt="ALUVAL Logo" class="shrink mr-2" contain src="@/assets/logoWeb.png"
-          transition="scale-transition" />
-        <v-img v-else alt="ALUVAL Logo" class="shrink mr-2" contain width="180" src="@/assets/logoH.png"
+        <v-img alt="ALUVAL Logo" class="shrink mr-2" contain src="@/assets/logoWeb.png"
           transition="scale-transition" />
       </div>
 
       <v-spacer></v-spacer>
 
-      <div v-if="!mobile">
-        <router-link :to="{ name: 'home' }" class="mr-5">
-          <v-btn text x-large>
-            <span>
-              Inicio
-            </span>
-          </v-btn>
-        </router-link>
-
+      <div>
         <router-link :to="{ name: 'cotizar' }" class="mr-5">
           <v-btn text x-large>
             <span>
@@ -44,69 +34,7 @@
         </router-link>
       </div>
 
-      <div v-else>
-        <v-app-bar-nav-icon @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
-      </div>
     </v-app-bar>
-
-    <v-navigation-drawer hide-overlay v-model="drawer" fixed app temporary dark color="primary">
-      <br>
-      <v-row>
-        <v-col class="d-flex justify-center">
-          <v-img alt="ALUVAL Logo2" class="shrink" contain width="160" src="@/assets/logoV.png"
-            transition="scale-transition" />
-        </v-col>
-      </v-row>
-      <br>
-      <v-list nav>
-        <v-list-item-group v-model="group">
-          <v-list-item>
-            <v-list-item-icon>
-              <v-icon>mdi-home</v-icon>
-            </v-list-item-icon>
-            <v-list-item-title>
-              <router-link class="wtext" :to="{ name: 'home' }">
-                INICIO
-              </router-link>
-            </v-list-item-title>
-          </v-list-item>
-
-          <v-list-item>
-            <v-list-item-icon>
-              <v-icon>mdi-currency-usd</v-icon>
-            </v-list-item-icon>
-            <v-list-item-title>
-              <router-link class="wtext" :to="{ name: 'cotizar' }">
-                COTIZAR
-              </router-link>
-            </v-list-item-title>
-          </v-list-item>
-
-          <v-list-item>
-            <v-list-item-icon>
-              <v-icon>mdi-bag-personal</v-icon>
-            </v-list-item-icon>
-            <v-list-item-title>
-              <router-link class="wtext" :to="{ name: 'inventario' }">
-                INVENTARIO
-              </router-link>
-            </v-list-item-title>
-          </v-list-item>
-
-          <v-list-item>
-            <v-list-item-icon>
-              <v-icon>mdi-history</v-icon>
-            </v-list-item-icon>
-            <v-list-item-title>
-              <router-link class="wtext" :to="{ name: 'historial' }">
-                HISTORIAL
-              </router-link>
-            </v-list-item-title>
-          </v-list-item>
-        </v-list-item-group>
-      </v-list>
-    </v-navigation-drawer>
-
     <v-main>
       <router-view />
     </v-main>
@@ -119,19 +47,9 @@ export default {
   name: 'App',
 
   data: () => ({
-    drawer: false,
-    mobile: "",
-    group: ""
   }),
 
-  methods: {
-    isMobile() {
-      this.mobile = window.innerWidth <= 600 && window.innerHeight <= 1000
-    }
-  },
-
   created() {
-    this.isMobile()
   },
 };
 </script>

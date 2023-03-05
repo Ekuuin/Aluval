@@ -4,10 +4,10 @@
 
 <template>
     <v-container fluid style="height: 100%;">
-        <v-data-table :headers="headers" :items="products" :search="search" :page.sync="page"
-            :items-per-page="itemsPerPage" hide-default-footer class="elevation-10" item-key="name"
-            no-data-text="No hay información" :loading="loadingVar" loading-text="Cargando información..."
-            no-results-text="No hay coincidencias" @page-count="pageCount = $event" sort-by="name">
+        <v-data-table :headers="headers" :items="products" :search="search" :page.sync="page" :items-per-page="itemsPerPage"
+            hide-default-footer class="elevation-10" item-key="name" no-data-text="No hay información" :loading="loadingVar"
+            loading-text="Cargando información..." no-results-text="No hay coincidencias" @page-count="pageCount = $event"
+            sort-by="name">
             <template v-slot:top>
                 <v-toolbar flat color="primary" dark>
                     <v-toolbar-title>
@@ -24,16 +24,17 @@
                 <v-btn color="blue" depressed fab x-small dark class="mr-6" @click="dialog_EditProduct(item)">
                     <font-awesome-icon icon="fa-solid fa-pencil" class="fa-xl" />
                 </v-btn>
-                <v-btn color="error" depressed fab x-small @click="showDialogDeleteProduct(item)">
+                <v-btn color="error" depressed fab x-small
+                    @click="showDeleteAlert('¿Quieres eliminar este producto?', '', 0), newNameCategory = item.pro_id">
                     <font-awesome-icon icon="fa-trash" class="fa-xl" />
                 </v-btn>
             </template>
-        </v-data-table>
-        <v-pagination :length="pageCount" :total-visible="totalVisible" v-model="page" class="mt-2"></v-pagination>
+    </v-data-table>
+    <v-pagination :length="pageCount" :total-visible="totalVisible" v-model="page" class="mt-2"></v-pagination>
 
         <!--
-    * ---------DIALOG EDITAR PRODUCTO---------
-    -->
+                                        * ---------DIALOG EDITAR PRODUCTO---------
+                                        -->
         <v-dialog v-model="dialogEditProduct" scrollable persistent max-width="800" transition="dialog-transition">
             <v-card>
                 <v-toolbar flat color="primary" dark style="flex: none">
@@ -59,8 +60,8 @@
                         </v-row>
                         <v-row>
                             <v-col cols="4">
-                                <v-text-field v-model.number="newProduct.pro_cost" label="Precio" dense type="float" @click="newProduct.pro_cost = ''"
-                                    rounded outlined :disabled="evalPerfiles(newProduct)">
+                                <v-text-field v-model.number="newProduct.pro_cost" label="Precio" dense type="float"
+                                    @click="newProduct.pro_cost = ''" rounded outlined :disabled="evalPerfiles(newProduct)">
                                 </v-text-field>
                             </v-col>
                             <v-col cols="4">
@@ -94,8 +95,8 @@
                                 </v-text-field>
                             </v-col>
                             <v-col cols="4">
-                                <v-text-field v-model.number="newProduct.traslapeC" label="Traslape Corrediza" dense
-                                    rounded outlined></v-text-field>
+                                <v-text-field v-model.number="newProduct.traslapeC" label="Traslape Corrediza" dense rounded
+                                    outlined></v-text-field>
                             </v-col>
                             <v-col cols="4">
                                 <v-text-field v-model.number="newProduct.bolsaF" label="Bolsa Fijo" dense rounded
@@ -104,13 +105,13 @@
                         </v-row>
                         <v-row v-if="evalPerfiles(newProduct)">
                             <v-col cols="4">
-                                <v-text-field v-model.number="newProduct.escalonadoF" label="Escalonado Fijo" dense
-                                    rounded outlined>
+                                <v-text-field v-model.number="newProduct.escalonadoF" label="Escalonado Fijo" dense rounded
+                                    outlined>
                                 </v-text-field>
                             </v-col>
                             <v-col cols="4">
-                                <v-text-field v-model.number="newProduct.junquilloF" label="Junquillo Fijo" dense
-                                    rounded outlined></v-text-field>
+                                <v-text-field v-model.number="newProduct.junquilloF" label="Junquillo Fijo" dense rounded
+                                    outlined></v-text-field>
                             </v-col>
                             <v-col cols="4">
                                 <v-text-field v-model.number="newProduct.marcoPE" label="Marco Puerta Económica" dense
@@ -128,14 +129,14 @@
                                     rounded outlined></v-text-field>
                             </v-col>
                             <v-col cols="4">
-                                <v-text-field v-model.number="newProduct.tubularPEsp"
-                                    label="Fijo Tubular Puerta Española" dense rounded outlined></v-text-field>
+                                <v-text-field v-model.number="newProduct.tubularPEsp" label="Fijo Tubular Puerta Española"
+                                    dense rounded outlined></v-text-field>
                             </v-col>
                         </v-row>
                         <v-row v-if="evalPerfiles(newProduct)">
                             <v-col cols="4">
-                                <v-text-field v-model.number="newProduct.hojaPEsp"
-                                    label="Hoja Monumental Puerta Española" dense rounded outlined>
+                                <v-text-field v-model.number="newProduct.hojaPEsp" label="Hoja Monumental Puerta Española"
+                                    dense rounded outlined>
                                 </v-text-field>
                             </v-col>
                             <v-col cols="4">
@@ -143,8 +144,8 @@
                                     rounded outlined></v-text-field>
                             </v-col>
                             <v-col cols="4">
-                                <v-text-field v-model.number="newProduct.junquilloPEsp"
-                                    label="Junquillo Puerta Española" dense rounded outlined></v-text-field>
+                                <v-text-field v-model.number="newProduct.junquilloPEsp" label="Junquillo Puerta Española"
+                                    dense rounded outlined></v-text-field>
                             </v-col>
                         </v-row>
                         <v-divider></v-divider>
@@ -152,34 +153,16 @@
                 </v-card-text>
                 <v-card-actions>
                     <v-spacer></v-spacer>
-                    <v-btn color="red" dark @click="closeDialog()">Cerrar</v-btn>
                     <v-btn color="success" @click="editProduct()">Guardar</v-btn>
+                    <v-btn color="red" dark @click="closeDialog()">Cerrar</v-btn>
                     <v-spacer></v-spacer>
                 </v-card-actions>
-            </v-card>
-        </v-dialog>
-
-        <v-dialog width="auto" v-model="dialogWarningDeleteProduct" persistent transition="dialog-transition">
-            <v-card>
-                <v-toolbar color="primary" dark>
-                    <v-toolbar-title>
-                        ¿Estás seguro de eliminar este producto?
-                    </v-toolbar-title>
-                </v-toolbar>
-                <v-card-actions>
-                    <v-spacer></v-spacer>
-                    <v-btn color="error" @click="dialogWarningDeleteProduct = false" class="mr-5">Cerrar</v-btn>
-                    <v-btn color="success" @click="deleteProduct()">Sí</v-btn>
-                    <v-spacer></v-spacer>
-                </v-card-actions>
-            </v-card>
-
-        </v-dialog>
-
+        </v-card>
+    </v-dialog>
 
         <!--
-    * ---------DIALOG NUEVO PRODUCTO---------
-    -->
+                                        * ---------DIALOG NUEVO PRODUCTO---------
+                                        -->
         <v-dialog v-model="dialogNewProduct" scrollable persistent max-width="1100" transition="dialog-transition">
             <v-card>
                 <v-toolbar flat color="primary" dark style="flex: none">
@@ -242,8 +225,8 @@
                                 </v-text-field>
                             </v-col>
                             <v-col cols="4">
-                                <v-text-field v-model.number="newProduct.traslapeC" label="Traslape Corrediza" dense
-                                    rounded outlined></v-text-field>
+                                <v-text-field v-model.number="newProduct.traslapeC" label="Traslape Corrediza" dense rounded
+                                    outlined></v-text-field>
                             </v-col>
                             <v-col cols="4">
                                 <v-text-field v-model.number="newProduct.bolsaF" label="Bolsa Fijo" dense rounded
@@ -252,13 +235,13 @@
                         </v-row>
                         <v-row v-if="evalPerfiles(newProduct)">
                             <v-col cols="4">
-                                <v-text-field v-model.number="newProduct.escalonadoF" label="Escalonado Fijo" dense
-                                    rounded outlined>
+                                <v-text-field v-model.number="newProduct.escalonadoF" label="Escalonado Fijo" dense rounded
+                                    outlined>
                                 </v-text-field>
                             </v-col>
                             <v-col cols="4">
-                                <v-text-field v-model.number="newProduct.junquilloF" label="Junquillo Fijo" dense
-                                    rounded outlined></v-text-field>
+                                <v-text-field v-model.number="newProduct.junquilloF" label="Junquillo Fijo" dense rounded
+                                    outlined></v-text-field>
                             </v-col>
                             <v-col cols="4">
                                 <v-text-field v-model.number="newProduct.marcoPE" label="Marco Puerta Económica" dense
@@ -276,14 +259,14 @@
                                     rounded outlined></v-text-field>
                             </v-col>
                             <v-col cols="4">
-                                <v-text-field v-model.number="newProduct.tubularPEsp"
-                                    label="Fijo Tubular Puerta Española" dense rounded outlined></v-text-field>
+                                <v-text-field v-model.number="newProduct.tubularPEsp" label="Fijo Tubular Puerta Española"
+                                    dense rounded outlined></v-text-field>
                             </v-col>
                         </v-row>
                         <v-row v-if="evalPerfiles(newProduct)">
                             <v-col cols="4">
-                                <v-text-field v-model.number="newProduct.hojaPEsp"
-                                    label="Hoja Monumental Puerta Española" dense rounded outlined>
+                                <v-text-field v-model.number="newProduct.hojaPEsp" label="Hoja Monumental Puerta Española"
+                                    dense rounded outlined>
                                 </v-text-field>
                             </v-col>
                             <v-col cols="4">
@@ -291,8 +274,8 @@
                                     rounded outlined></v-text-field>
                             </v-col>
                             <v-col cols="4">
-                                <v-text-field v-model.number="newProduct.junquilloPEsp"
-                                    label="Junquillo Puerta Española" dense rounded outlined></v-text-field>
+                                <v-text-field v-model.number="newProduct.junquilloPEsp" label="Junquillo Puerta Española"
+                                    dense rounded outlined></v-text-field>
                             </v-col>
                         </v-row>
                         <v-divider></v-divider>
@@ -300,23 +283,22 @@
                 </v-card-text>
                 <v-card-actions>
                     <v-spacer></v-spacer>
-                    <v-btn color="red" dark @click="closeDialog()">Cerrar</v-btn>
                     <v-btn color="success" @click="addNewProduct()">Guardar</v-btn>
+                    <v-btn color="red" dark @click="closeDialog()">Cerrar</v-btn>
                     <v-spacer></v-spacer>
                 </v-card-actions>
-            </v-card>
-        </v-dialog>
+        </v-card>
+    </v-dialog>
 
         <!--
-    * ---------DIALOG MOSTRAR CATEGORÍA---------
-    -->
+                                        * ---------DIALOG MOSTRAR CATEGORÍA---------
+                                        -->
         <v-dialog v-model="dialogShowCategories" persistent transition="dialog-transition" width="auto" max-width="50%">
             <v-card>
-                <v-data-table :headers="headersCategories" :items="categories" :search="searchCategories"
-                    :page.sync="page" :items-per-page="itemsPerPage" hide-default-footer class="elevation-1"
-                    item-key="name" no-data-text="No hay información" :loading="loadingVar"
-                    loading-text="Cargando información..." no-results-text="No hay coincidencias"
-                    @page-count="pageCount = $event" sort-by="name">
+                <v-data-table :headers="headersCategories" :items="categories" :search="searchCategories" :page.sync="page"
+                    :items-per-page="itemsPerPage" hide-default-footer class="elevation-1" item-key="name"
+                    no-data-text="No hay información" :loading="loadingVar" loading-text="Cargando información..."
+                    no-results-text="No hay coincidencias" @page-count="pageCount = $event" sort-by="name">
                     <template v-slot:top>
                         <v-toolbar flat color="primary" dark style="flex: none;">
                             <v-toolbar-title>
@@ -328,7 +310,9 @@
                         <v-btn color="blue" depressed fab x-small dark class="mr-6" @click="copyCategoryItem(item)">
                             <font-awesome-icon icon="fa-solid fa-pencil" class="fa-xl" />
                         </v-btn>
-                        <v-btn color="error" depressed fab x-small @click="showDeleteWarning(item)">
+                        <v-btn color="error" depressed fab x-small
+                            @click="showDeleteAlert('¿Quieres eliminar la categoría '+ item.cat_name +'?',
+                                'Esto también eliminará los productos dentro de la categoría', 1), newNameCategory = item.cat_id">
                             <font-awesome-icon icon="fa-trash" class="fa-xl" />
                         </v-btn>
                     </template>
@@ -341,12 +325,12 @@
                     <v-btn color="error" @click="dialogShowCategories = false">Cerrar</v-btn>
                     <v-spacer></v-spacer>
                 </v-card-actions>
-            </v-card>
-        </v-dialog>
+        </v-card>
+    </v-dialog>
 
         <!--
-    * ---------DIALOGS EDITAR CATEGORÍA---------
-    -->
+                                        * ---------DIALOGS EDITAR CATEGORÍA---------
+                                        -->
 
         <v-dialog v-model="dialogEditCategory" persistent max-width="25%" transition="dialog-transition">
             <v-card>
@@ -360,28 +344,8 @@
                 </v-card-text>
                 <v-card-actions>
                     <v-spacer></v-spacer>
-                    <v-btn color="error" @click="dialogEditCategory = false">Cerrar</v-btn>
                     <v-btn color="success" @click="updateCategory()">Guardar</v-btn>
-                    <v-spacer></v-spacer>
-                </v-card-actions>
-            </v-card>
-
-        </v-dialog>
-
-        <v-dialog width="auto" v-model="dialogWarningDelete" persistent transition="dialog-transition">
-            <v-card>
-                <v-toolbar color="primary" dark>
-                    <v-toolbar-title>
-                        ¿Estás seguro de eliminar esta categoría?
-                    </v-toolbar-title>
-                </v-toolbar>
-                <v-card-text>
-                    <span class="title">Esto también eliminará a los productos dentro de la categoría.</span>
-                </v-card-text>
-                <v-card-actions>
-                    <v-spacer></v-spacer>
-                    <v-btn color="error" @click="dialogWarningDelete = false" class="mr-5">Cerrar</v-btn>
-                    <v-btn color="success" @click="deleteCategory()">Sí</v-btn>
+                    <v-btn color="error" @click="dialogEditCategory = false">Cerrar</v-btn>
                     <v-spacer></v-spacer>
                 </v-card-actions>
             </v-card>
@@ -406,8 +370,6 @@ export default {
             dialogEditProduct: false,
             dialogShowCategories: false,
             dialogNewProduct: false,
-            dialogWarningDelete: false,
-            dialogWarningDeleteProduct: false,
             search: "",
             searchCategories: "",
             page: 1,
@@ -477,26 +439,31 @@ export default {
         },
 
         async addNewProduct() {
-            /**
+            try {
+                /**
              * * Metodo some evalua si algún objeto o elemento cumple con la condición
              */
-            for (const producto of this.newProduct) {
-                if (!this.categories.some(cat => cat.cat_id === producto.category?.cat_id)) {
+                for (const producto of this.newProduct) {
+                    if (!this.categories.some(cat => cat.cat_id === producto.category?.cat_id)) {
+                        /**
+                         * * En caso de la que la categoría no exista, se crea y se guarda su ID para la siguiente petición.
+                         */
+                        await this.addNewCategory(producto)
+                    }
+                    else {
+                        producto.category = producto.category?.cat_id
+                    }
                     /**
-                     * * En caso de la que la categoría no exista, se crea y se guarda su ID para la siguiente petición.
+                     * * Se envía la petición para agregar el nuevo producto.
                      */
-                    await this.addNewCategory(producto)
+                    await this.axios.post('/api/inventario/nuevoProducto', producto)
                 }
-                else {
-                    producto.category = producto.category?.cat_id
-                }
-                /**
-                 * * Se envía la petición para agregar el nuevo producto.
-                 */
-                await this.axios.post('/api/inventario/nuevoProducto', producto)
+                this.closeDialog()
+                this.getProducts()
+                this.showSuccessAlert('El producto se agregó correctamente.')
+            } catch (error) {
+                this.showErrorAlert('No se pudo agregar el producto.')
             }
-            this.closeDialog()
-            this.getProducts()
         },
 
         async addNewCategory(producto) {
@@ -520,70 +487,82 @@ export default {
         },
 
         async deleteProduct() {
-            await this.axios.get('/api/inventario/borrarProducto/' + this.newNameCategory)
-            this.closeDialog()
-            this.getProducts()
+            let msg
+            try {
+                await this.axios.get('/api/inventario/borrarProducto/' + this.newNameCategory)
+                this.getProducts();
+                msg = 'El producto fue eliminado correctamente.'
+                this.showSuccessAlert(msg)
+            } catch (error) {
+                msg = 'El producto no pudo ser eliminado.'
+                this.showErrorAlert(msg)
+            }
         },
 
         async deleteCategory() {
-            await this.axios.get('/api/inventario/borrarCategoria/' + this.newNameCategory)
-            this.closeDialog()
-            this.getCategories()
-            this.getProducts()
-        },
-
-        showDialogDeleteProduct(item) {
-            this.newNameCategory = item.pro_id
-            this.dialogWarningDeleteProduct = true
-        },
-
-        showDeleteWarning(item) {
-            this.newNameCategory = item.cat_id
-            this.dialogWarningDelete = true
+            try {
+                await this.axios.get('/api/inventario/borrarCategoria/' + this.newNameCategory)
+                this.closeDialog()
+                this.getCategories()
+                this.getProducts()
+                this.showSuccessAlert('Se eliminó la categoría.')
+            } catch (error) {
+                this.showErrorAlert('Error al eliminar.')
+            }
         },
 
         async editProduct() {
-            /**
+            try {
+                /**
              * ! waiting for combobox to update before firing
              */
-            await new Promise((r) => setTimeout(r, 100));
+                await new Promise((r) => setTimeout(r, 100));
 
 
-            const cond1 = this.categories.some(cat => cat.cat_id == this.newProduct.cat_name?.cat_id)
-            const cond2 = this.categories.some(cat => cat.cat_name === this.newProduct.cat_name)
+                console.log("🚀 ~ file: Inventario.vue:517 ~ editProduct ~ this.newProduct:", this.newProduct)
+                const cond1 = this.categories.some(cat => cat.cat_id == this.newProduct.cat_name?.cat_id)
+                const cond2 = this.categories.some(cat => cat.cat_name === this.newProduct.cat_name)
 
-            if (!(cond1 || cond2)) {
-                const producto = {
-                    category: ""
-                }
-                if (typeof this.newProduct.cat_name === 'object') {
-                    producto.category = this.newProduct.cat_name.cat_name
+                if (!(cond1 || cond2)) {
+                    const producto = {
+                        category: ""
+                    }
+                    if (typeof this.newProduct.cat_name === 'object') {
+                        producto.category = this.newProduct.cat_name.cat_name
+                    }
+                    else {
+                        producto.category = this.newProduct.cat_name
+                    }
+                    await this.addNewCategory(producto)
+                    this.newProduct.pro_category = producto.category
                 }
                 else {
-                    producto.category = this.newProduct.cat_name
+                    if (typeof this.newProduct.cat_name.cat_id !== 'undefined')
+                        this.newProduct.pro_category = this.newProduct.cat_name.cat_id
                 }
-                await this.addNewCategory(producto)
-                this.newProduct.pro_category = producto.category
+                await this.axios.post('/api/inventario/actualizarProducto', this.newProduct)
+                this.closeDialog()
+                this.getProducts()
+                this.showSuccessAlert('El producto se actualizó.')
+            } catch (error) {
+                this.showErrorAlert('Error al actualizar información.')
             }
-            else {
-                if (typeof this.newProduct.cat_name.cat_id !== 'undefined')
-                    this.newProduct.pro_category = this.newProduct.cat_name.cat_id
-            }
-            await this.axios.post('/api/inventario/actualizarProducto', this.newProduct)
-            this.closeDialog()
-            this.getProducts()
         },
 
         async updateCategory() {
-            await this.axios.post('/api/inventario/actualizarCategoria', this.newNameCategory)
-            this.closeDialog()
-            this.getCategories()
-            this.getProducts()
+            try {
+                await this.axios.post('/api/inventario/actualizarCategoria', this.newNameCategory)
+                this.closeDialog()
+                this.getCategories()
+                this.getProducts()
+                this.showSuccessAlert('Categoría actualizada.')
+            } catch (error) {
+                this.showErrorAlert('Error al actualizar.')
+            }
         },
 
         closeDialog() {
-            this.dialogWarningDeleteProduct = false
-            this.dialogWarningDelete = false
+            this.dialogShowCategories = false
             this.dialogEditCategory = false
             this.dialogNewProduct = false
             this.dialogEditProduct = false
@@ -613,6 +592,58 @@ export default {
                 }
             ]
             this.newNameCategory = ""
+        },
+
+        showDeleteAlert(msg, msg2 = '', option) {
+            // Use sweetalert2
+            this.$swal({
+                title: msg,
+                text: msg2,
+                icon: 'warning',
+                confirmButtonText: 'Sí',
+                cancelButtonText: 'No',
+                confirmButtonColor: '#4caf50',
+                cancelButtonColor: '#ff6060',
+                showLoaderOnConfirm: true,
+                showCancelButton: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    switch (option) {
+                        case 0:
+                            this.deleteProduct()
+                            break;
+                        case 1:
+                            this.deleteCategory()
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            })
+        },
+
+        showSuccessAlert(msg) {
+            // Use sweetalert2
+            this.$swal({
+                title: msg,
+                icon: 'success',
+                confirmButtonText: 'OK',
+                confirmButtonColor: '#4caf50',
+                showLoaderOnConfirm: true
+            }).then((result) => {
+            })
+        },
+
+        showErrorAlert(msg) {
+            // Use sweetalert2
+            this.$swal({
+                title: msg,
+                icon: 'error',
+                confirmButtonText: 'OK',
+                confirmButtonColor: '#4caf50',
+                showLoaderOnConfirm: true
+            }).then((result) => {
+            })
         },
 
         addNewProductRow() {
@@ -651,6 +682,7 @@ export default {
              * ! Usar el metodo JSON.parse(JSON.stringify()) para desconectar todas las referencias, instead of Object.assign
              */
             this.newProduct = JSON.parse(JSON.stringify(item))
+            this.newProduct.pro_cost = this.newProduct.pro_cost.slice(1)
             this.dialogEditProduct = true
         },
 
