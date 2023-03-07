@@ -272,7 +272,7 @@ export default {
                 enableLinks: false,
 
                 html2canvas: {
-                    scale: 1.3,
+                    scale: 1.5,
                 },
 
                 jsPDF: {
