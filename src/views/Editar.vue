@@ -98,7 +98,8 @@
                                         rows="1" solo hide-details></v-textarea>
                                 </td>
                                 <td>
-                                    <v-btn depressed fab x-small color="error" @click="removeRow(item)"><font-awesome-icon
+                                    <v-btn depressed fab x-small color="error"
+                                        @click="removeRow(item), deleteItem(item.id)"><font-awesome-icon
                                             icon="fa-solid fa-2xl fa-x" /></v-btn>
                                 </td>
                             </tr>
@@ -239,6 +240,16 @@ export default {
             this.getCost()
         },
 
+        async deleteItem(id) {
+            if (id != null) {
+                const body = {
+                    id: id
+                }
+                await this.axios.post('/api/editar/borrarItem', body)
+            }
+        }
+        ,
+
         async actualizarInfo() {
             const body = {
                 id: this.id,
@@ -249,9 +260,9 @@ export default {
             }
             try {
                 this.axios.post('/api/editar/actualizarInfo', body)
-                this.showAlertSuccess()
+                this.showAlertSuccess('Se ha guardado correctamente.')
             } catch (error) {
-                this.showAlertError()
+                this.showAlertError('Error al guardar.')
             }
 
         },
@@ -345,10 +356,10 @@ export default {
             this.newProject.product.splice(index, 1)
         },
 
-        showAlertError() {
+        showAlertError(msg) {
             // Use sweetalert2
             this.$swal({
-                title: 'El proyecto no pudo ser guardado.',
+                title: msg,
                 text: 'Verifica la información',
                 icon: 'error',
                 confirmButtonText: 'OK',
@@ -362,10 +373,10 @@ export default {
             })
         },
 
-        showAlertSuccess() {
+        showAlertSuccess(msg) {
             // Use sweetalert2
             this.$swal({
-                title: 'Se ha guardado la información.',
+                title: msg,
                 icon: 'success',
                 confirmButtonText: 'OK',
                 confirmButtonColor: '#4caf50',

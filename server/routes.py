@@ -124,7 +124,7 @@ def borrarCategoria(id):
     cursor = conn.cursor()
     cursor.execute(query, id)
     conn.commit()
-    return jsonify(msg="Successfully deleted", id=id)
+    return jsonify(msg="Deleted successfully", id=id)
 
 
 @app.route('/api/inventario/actualizarProducto', methods=["POST"])
@@ -165,7 +165,7 @@ def actualizarProducto():
     cursor = conn.cursor()
     cursor.execute(query, data)
     conn.commit()
-    return jsonify(f"Product ID {_productId} successfully updated")
+    return jsonify(f"Product ID {_productId} updated successfully")
 
 
 @app.route('/api/inventario/actualizarCategoria', methods=["POST"])
@@ -177,7 +177,7 @@ def actualizarCategoria():
     cursor = conn.cursor()
     cursor.execute(query, data)
     conn.commit()
-    return jsonify(f"Category ID {data[0]} successfully updated")
+    return jsonify(f"Category ID {data[0]} updated successfully")
 
 # Rutas de Historial
 
@@ -299,6 +299,18 @@ def actualizarInfo():
 
         conn.commit()
     return jsonify("OK")
+
+@app.route('/api/editar/borrarItem', methods=['POST'])
+def borrarItem():
+    data = request.get_json(silent=True)
+    _id = data['id']
+    query = 'DELETE FROM detalles_pedido WHERE dp_id = %s'
+    conn = mysql.connect()
+    cursor = conn.cursor()
+    cursor.execute(query, _id)
+    conn.commit()
+
+    return jsonify('OK')
 
 # Rutas de Cotización
 
