@@ -306,6 +306,7 @@ export default {
         removeRow(data) {
             let index = this.newProject.product.indexOf(data)
             this.newProject.product.splice(index, 1)
+            this.getTotal()
         },
 
         showAlertError() {
