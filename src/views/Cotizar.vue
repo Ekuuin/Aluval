@@ -44,7 +44,8 @@
                                     Información de los productos
                                 </v-toolbar-title>
                                 <v-spacer></v-spacer>
-                                <v-btn color="success" @click="addRow()"><font-awesome-icon icon="fa-solid fa-plus" /></v-btn>
+                                <v-btn color="success" @click="addRow()"><font-awesome-icon
+                                        icon="fa-solid fa-plus" /></v-btn>
                             </v-toolbar>
                         </template>
 
@@ -113,21 +114,30 @@
                 <v-container fluid>
                     <v-row no-gutters>
                         <v-col class="d-flex align-center" cols="2" offset="5">
-                            <v-btn color="success" :loading="submitting" :disabled="submitting" block @click="createProject()">
+                            <v-btn color="success" :loading="submitting" :disabled="submitting" block
+                                @click="createProject()">
                                 {{ this.btnSubmitText }}</v-btn>
                         </v-col>
-                        <v-col cols="3" class="text-right d-flex flex-column" offset="1">
-                            <span class="title" style="color: #666666;">
-                                SUBTOTAL:&nbsp;<br>
-                                I.V.A:&nbsp;<br>
-                                TOTAL:&nbsp;
-                            </span>
-                        </v-col>
-                        <v-col cols="1" class="d-flex flex-column">
-                            <v-text-field v-model="subtotal" readonly single-line dense hide-details></v-text-field>
-                            <v-text-field v-model="iva" readonly single-line dense hide-details></v-text-field>
-                            <v-text-field v-model="newProject.total" single-line dense hide-details>
-                            </v-text-field>
+                        <v-col cols="4" class="d-flex flex-column" offset="1">
+                            <div class="d-flex justify-end">
+                                <span class="title" style="color: #666666;">
+                                    SUBTOTAL:&nbsp;
+                                </span>
+                                <v-text-field class="col-3" v-model="subtotal" readonly dense outlined hide-details></v-text-field>
+                            </div>
+                            <div class="d-flex justify-end">
+                                <span class="title" style="color: #666666;">
+                                    I.V.A:&nbsp;
+                                </span>
+                                <v-text-field class="col-3" v-model="iva" readonly dense outlined hide-details></v-text-field>
+                            </div>
+                            <div class="d-flex justify-end">
+                                <span class="title" style="color: #666666;">
+                                    TOTAL:&nbsp;
+                                </span>
+                                <v-text-field class="col-3" v-model="newProject.total" dense outlined hide-details>
+                                </v-text-field>
+                            </div>
                         </v-col>
                     </v-row>
                 </v-container>
@@ -170,7 +180,7 @@ export default {
             perfiles: [],
 
             headers: [
-                { text: 'TIPO', width: 'auto', sortable: false },
+                { text: 'TIPO', width: '12%', sortable: false },
                 { text: 'CRISTAL', width: 'auto', sortable: false },
                 { text: 'PERFIL', width: 'auto', sortable: false },
                 { text: 'MOSQ', width: '1', sortable: false },
@@ -178,8 +188,8 @@ export default {
                 { text: 'ANCHO', width: '1', sortable: false },
                 { text: 'ALTURA', width: '1', sortable: false },
                 { text: 'EXTRA', width: '1', sortable: false },
-                { text: 'COSTO', width: '1', sortable: false },
-                { text: 'COMENTARIO', width: '25%', sortable: false },
+                { text: 'COSTO', width: '7%', sortable: false },
+                { text: 'COMENTARIO', width: '15%', sortable: false },
                 { text: '', width: '1', sortable: false }
 
             ],
@@ -351,8 +361,6 @@ export default {
             this.subtotal = Number(this.subtotal.toFixed(2))
             this.iva = Number((this.subtotal * 0.16).toFixed(2))
             this.newProject.total = Number(this.iva + this.subtotal).toFixed(2)
-            console.log("🚀 ~ file: Cotizar.vue:336 ~ getTotal ~ this.newProject.product:", this.newProject.product)
-
         }
     }
 }
@@ -363,4 +371,5 @@ export default {
 .v-input__slot {
     align-items: center;
     justify-content: center;
-}</style>
+}
+</style>
